@@ -1,0 +1,8 @@
+/.DS_Store
+/.ipynb_checkpoints
+/.vscode
+/__pycache__
+/config.yml
+/heart_disease.csv
+/main.ipynb
+/new_cols

@@ -1,10 +1,10 @@
 from sklearn.decomposition import PCA, KernelPCA
 from sklearn.manifold import LocallyLinearEmbedding as LLE
-from sklearn.decomposition import PCA
 from lol import LOL
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from lpproj import LocalityPreservingProjection
 from sklearn.metrics import mean_squared_error, mean_absolute_error
+from slmvp import SLMVPTrain, SLMVP_transform
 
 
 class dim_model:
@@ -13,22 +13,22 @@ class dim_model:
         self.X_train = X_train
         self.X_test = X_test
 
+    def slmvp_model(self):
+        sett = (3, 'polynomial', None)
+        print(sett)
+        BAux, Sx = SLMVPTrain(X=X_train.T, Y=y_train,
+                              rank=sett[0],
+                              typeK=sett[1],
+                              gammaX=sett[2],
+                              gammaY=sett[2],
+                              polyValue=poly_order)
+
+        # Get the principal components
+        P_data = SLMVP_transform(BAux.T, X_train.T)
+
+        return P_data
+
     def lpp_model(self, n, k, X_val='na'):
-        """Locality Preserving Projection
-        Parameters
-        ----------
-        n_components : integer
-            number of coordinates for the manifold
-        n_neighbors : integer
-            number of neighbors to consider for each point.
-        weight : string ['adjacency'|'heat']
-            Weight function to use for the mapping
-        weight_width : float
-            Width of the heat kernel for building the weight matrix.
-            Only referenced if weights == 'heat'
-        neighbors_algorithm : string ['auto'|'brute'|'kd_tree'|'ball_tree']
-            Algorithm to use for nearest neighbors search,
-            passed to neighbors.NearestNeighbors instance."""
         lpp = LocalityPreservingProjection(n_components=n, n_neighbors=k)
         lpp.fit(self.X_train)
         X_lpp_train = lpp.transform(self.X_train)
@@ -43,10 +43,8 @@ class dim_model:
         pca_model = PCA(n_components=n).fit(self.X_train)
         X_pca_train = pca_model.transform(self.X_train)
         X_pca_test = pca_model.transform(self.X_test)
-        if not isinstance(X_val, str):
-            X_pca_val = pca_model.transform(X_val)
 
-        return X_pca_train, X_pca_val, X_pca_test
+        return pca_model, X_pca_train, X_pca_test
 
     def lle_model(self, neighbors, n, _reg, X_val='na'):
         lle = LLE(n_neighbors=neighbors, n_components=n, reg=_reg)

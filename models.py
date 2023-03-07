@@ -3,13 +3,19 @@ from sklearn.manifold import LocallyLinearEmbedding as LLE
 from lol import LOL
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from lpproj import LocalityPreservingProjection as LPP
-from sklearn.metrics import mean_squared_error, mean_absolute_error
 from slmvp import SLMVPTrain, SLMVP_transform
+from xgboost import XGBClassifier
+from sklearn.svm import SVC
+from sklearn.metrics import mean_squared_error, mean_absolute_error, accuracy_score
+from sklearn.model_selection import GridSearchCV
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import MinMaxScaler
 from tqdm import tqdm
+import pickle
 from math import floor, sqrt
 
 
-class dim_model:
+class Dim:
     """The output of every classifier is a tuple containing the train and test 
     data projected onto the new dimensions, and the new embeddings
 
@@ -22,9 +28,21 @@ class dim_model:
         self.y_train = train[:, -1]
         self.X_test = test[:, :-1]
         self.y_test = test[:, -1]
-        self.new_dim = dict()
+        self.new_dim = dict()  # X_train, X_test, components
+        self.scores = dict()
 
-    def apply(self, num_dim=[5]):
+    def pickle_dim(self, output_path):
+        if len(self.new_dim) == 0:
+            print('No dimensions loaded.')
+            return
+        with open(output_path + '.pkl', 'wb') as f:
+            pickle.dump(self.new_dim, f)
+
+    def unpickle_dim(self, input_path):
+        with open(input_path, 'rb') as f:
+            self.new_dim = pickle.load(f)
+
+    def apply_dim(self, num_dim=[5, 10, 50]):  # 5, 10, 50 dims takes 5min
         """Run dim. red. algorithms and save new features in self.new_dim"""
         pbar = tqdm(num_dim)
         for dim in pbar:
@@ -96,20 +114,20 @@ class dim_model:
         X_lpp_train = lpp.transform(self.X_train)
         X_lpp_test = lpp.transform(self.X_test)
 
-        return X_lpp_train, X_lpp_test, lpp.projection_
+        return X_lpp_train.T, X_lpp_test.T, lpp.projection_
 
     def pca_model(self, n):
         pca_model = PCA(n_components=n).fit(self.X_train)
         X_pca_train = pca_model.transform(self.X_train)
         X_pca_test = pca_model.transform(self.X_test)
-        return X_pca_train, X_pca_test, pca_model.components_
+        return X_pca_train.T, X_pca_test.T, pca_model.components_
 
     def lle_model(self, n, k, _reg):
         lle = LLE(n_neighbors=k, n_components=n, reg=_reg)
         X_lle_train = lle.fit_transform(self.X_train)
         X_lle_test = lle.transform(self.X_test)
 
-        return X_lle_train, X_lle_test
+        return X_lle_train.T, X_lle_test.T
 
     def lda_model(self, n, y_train, X_val='na'):
         lda = LDA(n_components=n)
@@ -127,7 +145,7 @@ class dim_model:
         X_kpca_train = kernel_pca.fit(self.X_train).transform(self.X_train)
         X_kpca_test = kernel_pca.transform(self.X_test)
 
-        return X_kpca_train, X_kpca_test
+        return X_kpca_train.T, X_kpca_test.T
 
     def lol_model(self, n):
         lmao = LOL(n_components=n, svd_solver='full')
@@ -135,30 +153,53 @@ class dim_model:
         X_lol_train = lmao.transform(self.X_train)
         X_lol_test = lmao.transform(self.X_test)
 
-        return X_lol_train, X_lol_test
+        return X_lol_train.T, X_lol_test.T
+
+    def apply_clf(self):
+        """Run classifiers and save new scores in self.scores"""
+
+        print('XGBoost')
+        xgb_pipe = Pipeline([('mms', MinMaxScaler()),
+                             ('xgb', XGBClassifier())])
+        params = [{'xgb__n_estimators': [5, 10, 20, 50, 100]}]
+        gs_xgb = GridSearchCV(xgb_pipe,
+                              param_grid=params,
+                              scoring='accuracy',
+                              cv=5)
+        pbar = tqdm(self.new_dim.keys())
+        for key_dim in pbar:
+            pbar.set_description(key_dim)
+            gs_xgb.fit(self.new_dim[key_dim][0].T, self.y_train)
+            self.scores['XGBoost-'+key_dim] = [
+                gs_xgb.score(self.new_dim[key_dim][1].T, self.y_test),
+                gs_xgb.best_params_
+            ]
 
 
-class clf_model:
+class Clf:
 
     def __init__(self):
         pass
 
-    def xgboost_model(self, n_estimators_, X_tr, y_tr, X_val, y_val, X_test, y_test):
-        # model = XGBClassifier(n_estimators =n_estimators_ )
-        model = XGBRegressor(n_estimators=n_estimators_)
+    def xgboost_model(self, n_estimators_, X_tr, y_tr, X_test, y_test):
+        model = XGBClassifier(n_estimators=n_estimators_)
         model.fit(X_tr, y_tr)
+        y_test_pred = model.predict(X_test)
+        error_squared_test = mean_squared_error(y_test, y_test_pred)
 
-        y_val_pred = model.predict(X_val)
+        return error_squared_test
+
+    def svm_model(kernel_, X_tr, y_tr, X_test, y_test):
+        svm = SVC(kernel=kernel_)
+        model = svm.fit(X_tr, y_tr)
         y_test_pred = model.predict(X_test)
 
-        print("################ XGBoost Model ####################")
-        print("0.Hyperparameters")
-        print("-n_estimators:", n_estimators_)
-        print("1.Validation")
-        error_squared_val = mean_squared_error(y_val, y_val_pred)
-        print("accuracy", error_squared_val)
         print("2.Test")
+        # accuracy_test = accuracy(y_test,y_test_pred)
         error_squared_test = mean_squared_error(y_test, y_test_pred)
+        # error_absolute_test = mean_absolute_error(y_test,y_test_pred)
+        # print("mean_squared_error",error_squared_test)
+        # print("mean_absolute_error",error_absolute_test)
         print("accuracy", error_squared_test)
 
-        return [error_squared_val, error_squared_test]
+        return error_squared_test

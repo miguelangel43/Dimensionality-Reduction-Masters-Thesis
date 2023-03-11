@@ -12,7 +12,9 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
 from tqdm import tqdm
 import pickle
+from datetime import datetime
 from math import floor, sqrt
+import pandas as pd
 
 
 class Dim:
@@ -23,75 +25,107 @@ class Dim:
     new_dim - dict. contains a tuple (train, test, embeddings)
     """
 
-    def __init__(self, train, test):
+    def __init__(self, train, test, col_names):
         self.X_train = train[:, :-1]
         self.y_train = train[:, -1]
         self.X_test = test[:, :-1]
         self.y_test = test[:, -1]
+        self.col_names = col_names
         self.new_dim = dict()  # X_train, X_test, components
         self.scores = dict()
+        self.results = dict()
 
     def pickle_dim(self, output_path):
         if len(self.new_dim) == 0:
             print('No dimensions loaded.')
             return
-        with open(output_path + '.pkl', 'wb') as f:
+        with open('dims/' + output_path + '.pkl', 'wb') as f:
             pickle.dump(self.new_dim, f)
 
     def unpickle_dim(self, input_path):
         with open(input_path, 'rb') as f:
             self.new_dim = pickle.load(f)
 
-    def apply_dim(self, num_dim=[5, 10, 50]):  # 5, 10, 50 dims takes 5min
+    def get_corr_table(self):
+        # TODO #3
+        # Load the data into a Pandas df
+        df = pd.DataFrame(self.X_train, columns=self.col_names[:-1])
+
+        for key in self.new_dim.keys():
+            if '1Dim' in key:
+                # Add the principal components as columns
+                for i in range(1):
+                    df[key] = self.new_dim[key][0][i]
+
+        # Correlations between the original data and each principal component
+        df_corr = df.corr().iloc[:len(self.X_train[0]), len(self.X_train[0]):]
+
+        # Save result in csv
+        df_corr.to_csv('corr_'+datetime.now().strftime('%m-%d-%H:%M'))
+
+        return df_corr
+
+    def apply_dim(self, num_dim=[1, 2, 5, 10]):  # 5, 10, 50 dims takes 5min
         """Run dim. red. algorithms and save new features in self.new_dim"""
         pbar = tqdm(num_dim)
         for dim in pbar:
-            key = str(dim) + 'Dim-SLMVP-Polynomial-Order=5'
-            pbar.set_description(key)
+            key = (str(dim) + 'Dim', 'SLMVP', 'Polynomial-Order=5')
+            pbar.set_description(str(key))
             self.new_dim[key] = self.slmvp_model(
                 dim, 'polynomial', poly_order=5)
-            key = str(dim) + 'Dim-SLMVP-Linear'
-            pbar.set_description(key)
+            key = (str(dim) + 'Dim', 'SLMVP', 'Linear')
+            pbar.set_description(str(key))
             self.new_dim[key] = self.slmvp_model(dim, 'linear')
-            key = str(dim) + 'Dim-SLMVP-Radial-Gammas=0.01'
-            pbar.set_description(key)
+            key = (str(dim) + 'Dim', 'SLMVP', 'Radial-Gammas=0.01')
+            pbar.set_description(str(key))
             self.new_dim[key] = self.slmvp_model(dim, 'radial', gammas=0.01)
-            key = str(dim) + 'Dim-SLMVP-Radial-Gammas=0.1'
-            pbar.set_description(key)
+            key = (str(dim) + 'Dim', 'SLMVP', 'Radial-Gammas=0.1')
+            pbar.set_description(str(key))
             self.new_dim[key] = self.slmvp_model(dim, 'radial', gammas=0.1)
-            key = str(dim) + 'Dim-SLMVP-Radial-Gammas=1'
-            pbar.set_description(key)
+            key = (str(dim) + 'Dim', 'SLMVP', 'Radial-Gammas=1')
+            pbar.set_description(str(key))
             self.new_dim[key] = self.slmvp_model(dim, 'radial', gammas=1)
-            key = str(dim) + 'Dim-SLMVP-Radial-Gammas=10'
-            pbar.set_description(key)
+            key = (str(dim) + 'Dim', 'SLMVP', 'Radial-Gammas=10')
+            pbar.set_description(str(key))
             self.new_dim[key] = self.slmvp_model(dim, 'radial', gammas=10)
-            key = str(dim) + 'Dim-PCA'
-            pbar.set_description(key)
+            key = (str(dim) + 'Dim', 'PCA', '')
+            pbar.set_description(str(key))
             self.new_dim[key] = self.pca_model(dim)
             # No known way of getting the components
-            key = str(dim) + 'Dim-KPCA-Linear'
-            pbar.set_description(key)
+            key = (str(dim) + 'Dim', 'KPCA', 'Linear')
+            pbar.set_description(str(key))
             self.new_dim[key] = self.kpca_model(dim, 'linear')
-            key = str(dim) + 'Dim-KPCA-Polynomial'
-            pbar.set_description(key)
+            key = (str(dim) + 'Dim', 'PCA', 'Polynomial')
+            pbar.set_description(str(key))
             self.new_dim[key] = self.kpca_model(dim, 'poly')
-            key = str(dim) + 'Dim-KPCA-Radial'
-            pbar.set_description(key)
+            key = (str(dim) + 'Dim', 'PCA', 'Radial')
+            pbar.set_description(str(key))
             self.new_dim[key] = self.kpca_model(dim, 'rbf')
             # No known way of getting the components
-            key = str(dim) + 'Dim-LOL'
-            pbar.set_description(key)
+            key = (str(dim) + 'Dim', 'LOL', '')
+            pbar.set_description(str(key))
             self.new_dim[key] = self.lol_model(dim)
             k = floor(sqrt(len(self.X_train)))
-            key = str(dim) + 'Dim-LPP-k=' + str(k)
-            pbar.set_description(key)
+            key = (str(dim) + 'Dim', 'LPP', 'k=' + str(k))
+            pbar.set_description(str(key))
             self.new_dim[key] = self.lpp_model(dim, k)
             k = floor(sqrt(len(self.X_train)))
             reg = 0.001
             # No known way of getting the components
-            key = str(dim) + 'Dim-LLE-k=' + str(k) + '-reg=' + str(reg)
-            pbar.set_description(key)
+            key = (str(dim) + 'Dim', 'LLE', 'k=' + str(k) + '-reg=' + str(reg))
+            pbar.set_description(str(key))
             self.new_dim[key] = self.lle_model(dim, k, reg)
+
+        # Save the results in a csv
+        result_dim = pd.DataFrame()
+        for key in self.new_dim.keys():
+            result_dim[key] = self.new_dim[key][0][0]
+        result_dim.columns = pd.MultiIndex.from_tuples(
+            result_dim.columns.to_list())
+        result_dim.to_csv('/Users/espina/Documents/TFM/tfm_code/dim/' +
+                          datetime.now().strftime('%m-%d-%H:%M') + '.csv')
+        result_dim.to_excel('/Users/espina/Documents/TFM/tfm_code/dim/' +
+                            datetime.now().strftime('%m-%d-%H:%M') + '.xlsx')
 
     def slmvp_model(self, n, type_kernel, gammas=None, poly_order=None):
         # Get the principal components
@@ -155,6 +189,13 @@ class Dim:
 
         return X_lol_train.T, X_lol_test.T
 
+    def pickle_scores(self, output_path):
+        if len(self.scores) == 0:
+            print('No scores loaded.')
+            return
+        with open('scores/' + output_path + '.pkl', 'wb') as f:
+            pickle.dump(self.scores, f)
+
     def apply_clf(self):
         """Run classifiers and save new scores in self.scores"""
 
@@ -175,31 +216,8 @@ class Dim:
                 gs_xgb.best_params_
             ]
 
+        self.pickle_scores(datetime.now().strftime('%m-%d-%H:%M'))
 
-class Clf:
-
-    def __init__(self):
+    def get_corr_best_1dim(self):
+        # TODO
         pass
-
-    def xgboost_model(self, n_estimators_, X_tr, y_tr, X_test, y_test):
-        model = XGBClassifier(n_estimators=n_estimators_)
-        model.fit(X_tr, y_tr)
-        y_test_pred = model.predict(X_test)
-        error_squared_test = mean_squared_error(y_test, y_test_pred)
-
-        return error_squared_test
-
-    def svm_model(kernel_, X_tr, y_tr, X_test, y_test):
-        svm = SVC(kernel=kernel_)
-        model = svm.fit(X_tr, y_tr)
-        y_test_pred = model.predict(X_test)
-
-        print("2.Test")
-        # accuracy_test = accuracy(y_test,y_test_pred)
-        error_squared_test = mean_squared_error(y_test, y_test_pred)
-        # error_absolute_test = mean_absolute_error(y_test,y_test_pred)
-        # print("mean_squared_error",error_squared_test)
-        # print("mean_absolute_error",error_absolute_test)
-        print("accuracy", error_squared_test)
-
-        return error_squared_test

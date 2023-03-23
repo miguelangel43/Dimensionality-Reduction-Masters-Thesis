@@ -48,6 +48,8 @@ class Dim:
             self.new_dim = pickle.load(f)
 
     def get_eigenvalues(self):
+        """Return the eigenvalues. Calculates the variation of the data projected
+        onto the discovered dimensions as a proxy for the eigenvalues."""
         res = pd.DataFrame()
         for key in self.new_dim.keys():
             var_dims = [np.var(self.new_dim[key][0][i])
@@ -231,7 +233,7 @@ class Dim:
             pickle.dump(self.scores, f)
 
     def apply_clf(self):
-        """Run classifiers and save new scores in self.scores"""
+        """Run classifiers and save new scores in self.scores and in folder /scores"""
 
         print('XGBoost')
         xgb_pipe = Pipeline([('mms', MinMaxScaler()),
@@ -241,17 +243,28 @@ class Dim:
                               param_grid=params,
                               scoring='accuracy',
                               cv=5)
-        pbar = tqdm(self.new_dim.keys())
-        for key_dim in pbar:
-            pbar.set_description(key_dim)
+
+        for key_dim in tqdm(self.new_dim.keys()):
             gs_xgb.fit(self.new_dim[key_dim][0].T, self.y_train)
-            self.scores['XGBoost-'+key_dim] = [
+            self.scores[key_dim] = [
                 gs_xgb.score(self.new_dim[key_dim][1].T, self.y_test),
                 gs_xgb.best_params_
             ]
 
+        # Pickle all the scores
         self.pickle_scores(datetime.now().strftime('%m-%d-%H:%M'))
 
-    def get_corr_best_1dim(self):
-        # TODO
-        pass
+        df = pd.DataFrame.from_dict(self.scores, orient='index', columns=[
+                                    'Best Score', 'Params']).reset_index()
+        df[['Dimensions', 'Dim. Technique', 'Dim. Params']] = pd.DataFrame(
+            df['index'].tolist(), index=df.index)
+
+        df = df.drop('index', axis=1)
+
+        df = df.sort_values('Best Score').groupby(
+            'Dim. Technique', as_index=False).first()
+
+        df.to_csv('/Users/espina/Documents/TFM/tfm_code/scores/' +
+                  datetime.now().strftime('%m-%d-%H:%M') + '.csv')
+        df.to_excel('/Users/espina/Documents/TFM/tfm_code/scores/' +
+                    datetime.now().strftime('%m-%d-%H:%M') + '.xlsx')

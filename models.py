@@ -15,6 +15,7 @@ import pickle
 from datetime import datetime
 from math import floor, sqrt
 import pandas as pd
+import numpy as np
 
 
 class Dim:
@@ -39,34 +40,63 @@ class Dim:
         if len(self.new_dim) == 0:
             print('No dimensions loaded.')
             return
-        with open('dims/' + output_path + '.pkl', 'wb') as f:
+        with open('dim/' + output_path + '.pkl', 'wb') as f:
             pickle.dump(self.new_dim, f)
 
     def unpickle_dim(self, input_path):
         with open(input_path, 'rb') as f:
             self.new_dim = pickle.load(f)
 
-    def get_corr_table(self):
-        # TODO #3
+    def get_eigenvalues(self):
+        res = pd.DataFrame()
+        for key in self.new_dim.keys():
+            var_dims = [np.var(self.new_dim[key][0][i])
+                        for i in range(len(self.new_dim[key][0]))]
+            por_eigenvals = [x/sum(var_dims) for x in var_dims]
+            res[key+('Var',)] = var_dims
+            res[key+('%',)] = por_eigenvals
+
+        res.columns = pd.MultiIndex.from_tuples(
+            res.columns.to_list())
+
+        res.to_csv('/Users/espina/Documents/TFM/tfm_code/evalues/' +
+                   datetime.now().strftime('%m-%d-%H:%M') + '.csv')
+        res.to_excel('/Users/espina/Documents/TFM/tfm_code/evalues/' +
+                     datetime.now().strftime('%m-%d-%H:%M') + '.xlsx')
+
+        return res
+
+    def get_corr_table(self, num_dim):
         # Load the data into a Pandas df
         df = pd.DataFrame(self.X_train, columns=self.col_names[:-1])
-
         for key in self.new_dim.keys():
-            if '1Dim' in key:
-                # Add the principal components as columns
-                for i in range(1):
-                    df[key] = self.new_dim[key][0][i]
+            if num_dim == int(key[0][0]):
+                for i in range(num_dim):
+                    df[key+(i,)] = self.new_dim[key][0][i]
 
         # Correlations between the original data and each principal component
         df_corr = df.corr().iloc[:len(self.X_train[0]), len(self.X_train[0]):]
 
+        # Make df multi-index
+        df_corr.columns = pd.MultiIndex.from_tuples(
+            df_corr.columns.to_list())
+
+        # Take only the abs value of the correlations
+        df_corr = df_corr.abs()
+
         # Save result in csv
-        df_corr.to_csv('corr_'+datetime.now().strftime('%m-%d-%H:%M'))
+        df_corr.to_csv('/Users/espina/Documents/TFM/tfm_code/corr/corr_' +
+                       datetime.now().strftime('%m-%d-%H:%M')+'_'+str(num_dim)+'.csv')
+        df_corr.to_excel('/Users/espina/Documents/TFM/tfm_code/corr/corr_' +
+                         datetime.now().strftime('%m-%d-%H:%M')+'_'+str(num_dim)+'.xlsx')
 
         return df_corr
 
     def apply_dim(self, num_dim=[1, 2, 5, 10]):  # 5, 10, 50 dims takes 5min
         """Run dim. red. algorithms and save new features in self.new_dim"""
+        if not isinstance(num_dim, list):
+            num_dim = [num_dim]
+
         pbar = tqdm(num_dim)
         for dim in pbar:
             key = (str(dim) + 'Dim', 'SLMVP', 'Polynomial-Order=5')
@@ -95,17 +125,17 @@ class Dim:
             key = (str(dim) + 'Dim', 'KPCA', 'Linear')
             pbar.set_description(str(key))
             self.new_dim[key] = self.kpca_model(dim, 'linear')
-            key = (str(dim) + 'Dim', 'PCA', 'Polynomial')
+            key = (str(dim) + 'Dim', 'KPCA', 'Polynomial')
             pbar.set_description(str(key))
             self.new_dim[key] = self.kpca_model(dim, 'poly')
-            key = (str(dim) + 'Dim', 'PCA', 'Radial')
+            key = (str(dim) + 'Dim', 'KPCA', 'Radial')
             pbar.set_description(str(key))
             self.new_dim[key] = self.kpca_model(dim, 'rbf')
             # No known way of getting the components
             key = (str(dim) + 'Dim', 'LOL', '')
             pbar.set_description(str(key))
             self.new_dim[key] = self.lol_model(dim)
-            k = floor(sqrt(len(self.X_train)))
+            k = floor(sqrt(min(len(self.X_train), len(self.X_train[0]))))
             key = (str(dim) + 'Dim', 'LPP', 'k=' + str(k))
             pbar.set_description(str(key))
             self.new_dim[key] = self.lpp_model(dim, k)
@@ -116,7 +146,7 @@ class Dim:
             pbar.set_description(str(key))
             self.new_dim[key] = self.lle_model(dim, k, reg)
 
-        # Save the results in a csv
+        # Save the results in a csv, xls
         result_dim = pd.DataFrame()
         for key in self.new_dim.keys():
             result_dim[key] = self.new_dim[key][0][0]
@@ -126,6 +156,9 @@ class Dim:
                           datetime.now().strftime('%m-%d-%H:%M') + '.csv')
         result_dim.to_excel('/Users/espina/Documents/TFM/tfm_code/dim/' +
                             datetime.now().strftime('%m-%d-%H:%M') + '.xlsx')
+        # Save as pickle
+        self.pickle_dim(output_path=datetime.now().strftime(
+            '%m-%d-%H:%M'))
 
     def slmvp_model(self, n, type_kernel, gammas=None, poly_order=None):
         # Get the principal components
@@ -154,7 +187,8 @@ class Dim:
         pca_model = PCA(n_components=n).fit(self.X_train)
         X_pca_train = pca_model.transform(self.X_train)
         X_pca_test = pca_model.transform(self.X_test)
-        return X_pca_train.T, X_pca_test.T, pca_model.components_
+        # return train, test, eigenvectors, eigenvalues
+        return X_pca_train.T, X_pca_test.T, pca_model.components_, pca_model.explained_variance_
 
     def lle_model(self, n, k, _reg):
         lle = LLE(n_neighbors=k, n_components=n, reg=_reg)
@@ -182,7 +216,7 @@ class Dim:
         return X_kpca_train.T, X_kpca_test.T
 
     def lol_model(self, n):
-        lmao = LOL(n_components=n, svd_solver='full')
+        lmao = LOL(n_components=n+1, svd_solver='full')
         lmao.fit(self.X_train, self.y_train)
         X_lol_train = lmao.transform(self.X_train)
         X_lol_test = lmao.transform(self.X_test)

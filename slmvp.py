@@ -19,6 +19,7 @@ def kernelPolynomial(X, Y, polyValue):
 
 
 def kernel(X, *args, **kwargs):
+    """The kernel will capture the similarity of the features."""
     Y = kwargs.get('YValue', None)
     gamma = kwargs.get('gammaValue', None)
     typeK = kwargs.get('typeK', None)
@@ -40,7 +41,7 @@ def SLMVPTrain(X, Y, rank, typeK, gammaX, gammaY, polyValue):  # Parametros type
     # Performs Singular value decomposition
     Ux, sx, Vx = np.linalg.svd(X, full_matrices=False)
 
-    # Creates a matrix of all 0 with shape like
+    # Put the eigenvalues sx in the diagonal of a zero matrix
     Sx = np.zeros((sx.shape[0], sx.shape[0]))
     Sx[:sx.shape[0], :sx.shape[0]] = np.diag(sx)
 
@@ -54,29 +55,33 @@ def SLMVPTrain(X, Y, rank, typeK, gammaX, gammaY, polyValue):  # Parametros type
 
     KXX = KXX - (np.dot(np.dot(j, j.T), KXX))/l - (np.dot(KXX, np.dot(j, j.T))) / \
         l + (np.dot((np.dot(j.T, np.dot(KXX, j))), np.dot(j, j.T)))/(np.power(l, 2))
+
     Y = np.reshape(Y, (1, Y.size))
 
     KYY = kernel(Y, typeK=typeK, YValue=Y,
                  gammaValue=gammaY, polyValue=polyValue)
+
     # KYY = kernel(Y, typeK='lineal',YValue = Y)
 
     # Centering KYY
     KYY = KYY - (np.dot(np.dot(j, j.T), KYY))/l - (np.dot(KYY, np.dot(j, j.T))) / \
         l + (np.dot((np.dot(j.T, np.dot(KYY, j))), np.dot(j, j.T)))/(np.power(l, 2))
 
-    # Para utilizar en tests
+    # Joint similarity matrix
     KXXKYY = np.dot(KXX, KYY)
     KXXKYYR = KXXKYY
-    KXXKYYR = np.dot(np.dot(Vx[0:rank, :], KXXKYYR), Vx[0:rank, :].T)
+
+    # Poner rank al max 100, 1000
+    KXXKYYR = np.dot(np.dot(Vx[:, :], KXXKYYR), Vx[:, :].T)
 
     # Obtaining the linear embedding B
     Ub, Sb, Vb = np.linalg.svd((KXXKYYR), full_matrices=False)
-    Sx = Sx[:rank, :rank]
-    B = np.dot(np.dot(Ux[:, :rank], np.linalg.inv(Sx)), Ub)
+    Sx = Sx[:, :]
+    B = np.dot(np.dot(Ux[:, :], np.linalg.inv(Sx)), Ub)
 
     # Projections on the learned space
     # P = np.dot(B.T,X)
-    return B  # return the learned model
+    return B[:, :rank]  # return the learned model
 
 
 def SLMVP_transform(B, X):

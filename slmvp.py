@@ -81,7 +81,7 @@ def SLMVPTrain(X, Y, rank, typeK, gammaX, gammaY, polyValue):  # Parametros type
 
     # Projections on the learned space
     # P = np.dot(B.T,X)
-    return B[:, :rank]  # return the learned model
+    return B[:, 1:rank+1]  # return the learned model
 
 
 def SLMVP_transform(B, X):

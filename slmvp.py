@@ -53,6 +53,7 @@ def SLMVPTrain(X, Y, rank, typeK, gammaX, gammaY, polyValue):  # Parametros type
     l = KXX.shape[0]
     j = np.ones(l)
 
+    # Quitar la media de KXX
     KXX = KXX - (np.dot(np.dot(j, j.T), KXX))/l - (np.dot(KXX, np.dot(j, j.T))) / \
         l + (np.dot((np.dot(j.T, np.dot(KXX, j))), np.dot(j, j.T)))/(np.power(l, 2))
 

@@ -5,11 +5,14 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from lpproj import LocalityPreservingProjection as LPP
 from slmvp import SLMVPTrain, SLMVP_transform
 from xgboost import XGBClassifier
+from sklearn.linear_model import LinearRegression
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import mean_squared_error, mean_absolute_error, accuracy_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
+import matplotlib.pyplot as plt
 from tqdm import tqdm
 import pickle
 from datetime import datetime
@@ -26,11 +29,13 @@ class Dim:
     new_dim - dict. contains a tuple (train, test, embeddings)
     """
 
-    def __init__(self, train, test, col_names):
-        self.X_train = train[:, :-1]
-        self.y_train = train[:, -1]
-        self.X_test = test[:, :-1]
-        self.y_test = test[:, -1]
+    def __init__(self, train=None, test=None, col_names=None):
+        if train is not None:
+            self.X_train = train[:, :-1]
+            self.y_train = train[:, -1]
+        if test is not None:
+            self.X_test = test[:, :-1]
+            self.y_test = test[:, -1]
         self.col_names = col_names
         self.new_dim = dict()  # X_train, X_test, components
         self.scores = dict()
@@ -105,42 +110,55 @@ class Dim:
             pbar.set_description(str(key))
             self.new_dim[key] = self.slmvp_model(
                 dim, 'polynomial', poly_order=5)
+
             key = (str(dim) + 'Dim', 'SLMVP', 'Linear')
             pbar.set_description(str(key))
             self.new_dim[key] = self.slmvp_model(dim, 'linear')
+
             key = (str(dim) + 'Dim', 'SLMVP', 'Radial-Gammas=0.01')
             pbar.set_description(str(key))
             self.new_dim[key] = self.slmvp_model(dim, 'radial', gammas=0.01)
+
             key = (str(dim) + 'Dim', 'SLMVP', 'Radial-Gammas=0.1')
             pbar.set_description(str(key))
             self.new_dim[key] = self.slmvp_model(dim, 'radial', gammas=0.1)
+
             key = (str(dim) + 'Dim', 'SLMVP', 'Radial-Gammas=1')
             pbar.set_description(str(key))
             self.new_dim[key] = self.slmvp_model(dim, 'radial', gammas=1)
-            key = (str(dim) + 'Dim', 'SLMVP', 'Radial-Gammas=10')
-            pbar.set_description(str(key))
-            self.new_dim[key] = self.slmvp_model(dim, 'radial', gammas=10)
+
             key = (str(dim) + 'Dim', 'PCA', '')
             pbar.set_description(str(key))
             self.new_dim[key] = self.pca_model(dim)
+
             # No known way of getting the components
-            key = (str(dim) + 'Dim', 'KPCA', 'Linear')
-            pbar.set_description(str(key))
-            self.new_dim[key] = self.kpca_model(dim, 'linear')
-            key = (str(dim) + 'Dim', 'KPCA', 'Polynomial')
+            # key = (str(dim) + 'Dim', 'KPCA', 'Linear')
+            # pbar.set_description(str(key))
+            # self.new_dim[key] = self.kpca_model(dim, 'linear')
+
+            key = (str(dim) + 'Dim', 'KPCA', 'Polynomial-Order=5')
             pbar.set_description(str(key))
             self.new_dim[key] = self.kpca_model(dim, 'poly')
-            key = (str(dim) + 'Dim', 'KPCA', 'Radial')
+
+            key = (str(dim) + 'Dim', 'KPCA', 'Radial-Gamma=0.1')
+            pbar.set_description(str(key))
+            self.new_dim[key] = self.kpca_model(dim, 'rbf', gamma=0.1)
+
+            key = (str(dim) + 'Dim', 'KPCA', 'Radial-Gamma=' +
+                   str(round(1/len(self.X_train[0]), 3)))
             pbar.set_description(str(key))
             self.new_dim[key] = self.kpca_model(dim, 'rbf')
+
             # No known way of getting the components
             key = (str(dim) + 'Dim', 'LOL', '')
             pbar.set_description(str(key))
-            self.new_dim[key] = self.lol_model(dim)
+            self.new_dim[key] = self.lol_model(dim, n_components=20)
+
             k = floor(sqrt(min(len(self.X_train), len(self.X_train[0]))))
             key = (str(dim) + 'Dim', 'LPP', 'k=' + str(k))
             pbar.set_description(str(key))
             self.new_dim[key] = self.lpp_model(dim, k)
+
             k = floor(sqrt(len(self.X_train)))
             reg = 0.001
             # No known way of getting the components
@@ -208,17 +226,17 @@ class Dim:
 
         return X_lda_train, X_lda_val, X_lda_test
 
-    def kpca_model(self, n, type_kernel):
+    def kpca_model(self, n, type_kernel, gamma=None):
         kernel_pca = KernelPCA(
-            n_components=n, kernel=type_kernel, fit_inverse_transform=True
+            n_components=n, kernel=type_kernel, fit_inverse_transform=True, gamma=gamma
         )
         X_kpca_train = kernel_pca.fit(self.X_train).transform(self.X_train)
         X_kpca_test = kernel_pca.transform(self.X_test)
 
         return X_kpca_train.T, X_kpca_test.T
 
-    def lol_model(self, n):
-        lmao = LOL(n_components=n+1, svd_solver='full')
+    def lol_model(self, n, n_components):
+        lmao = LOL(n_components=n_components, svd_solver='full')
         lmao.fit(self.X_train, self.y_train)
         X_lol_train = lmao.transform(self.X_train)
         X_lol_test = lmao.transform(self.X_test)
@@ -232,27 +250,60 @@ class Dim:
         with open('scores/' + output_path + '.pkl', 'wb') as f:
             pickle.dump(self.scores, f)
 
-    def apply_clf(self):
+    def apply_clf(self, model):
         """Run classifiers and save new scores in self.scores and in folder /scores"""
 
-        print('XGBoost')
-        xgb_pipe = Pipeline([('mms', MinMaxScaler()),
-                             ('xgb', XGBClassifier())])
-        params = [{'xgb__n_estimators': [5, 10, 20, 50, 100]}]
-        gs_xgb = GridSearchCV(xgb_pipe,
-                              param_grid=params,
-                              scoring='accuracy',
-                              cv=5)
+        if model == 'XGBoost':
+            xgb_pipe = Pipeline([('mms', MinMaxScaler()),
+                                ('xgb', XGBClassifier())])
+            params = [{'xgb__n_estimators': [5, 10, 20, 50, 100]}]
+            gs_xgb = GridSearchCV(xgb_pipe,
+                                  param_grid=params,
+                                  scoring='accuracy',
+                                  cv=5)
 
-        for key_dim in tqdm(self.new_dim.keys()):
-            gs_xgb.fit(self.new_dim[key_dim][0].T, self.y_train)
-            self.scores[key_dim] = [
-                gs_xgb.score(self.new_dim[key_dim][1].T, self.y_test),
-                gs_xgb.best_params_
-            ]
+            for key_dim in tqdm(self.new_dim.keys(), desc='XGBoost'):
+                gs_xgb.fit(self.new_dim[key_dim][0].T, self.y_train)
+                self.scores[key_dim] = [
+                    gs_xgb.score(self.new_dim[key_dim][1].T, self.y_test),
+                    gs_xgb.best_params_
+                ]
 
-        # Pickle all the scores
-        self.pickle_scores(datetime.now().strftime('%m-%d-%H:%M'))
+            # Pickle all the scores
+            self.pickle_scores(datetime.now().strftime('%m-%d-%H:%M'))
+
+        elif model == 'Linear Regression':
+            reg_pipe = Pipeline([('mms', MinMaxScaler()),
+                                ('reg', LinearRegression())])
+
+            for key_dim in tqdm(self.new_dim.keys(), desc='Linear Reg.'):
+                reg_pipe.fit(self.new_dim[key_dim][0].T, self.y_train)
+                self.scores[key_dim] = [
+                    reg_pipe.score(self.new_dim[key_dim][1].T, self.y_test),
+                    ''
+                ]
+
+            # Pickle all the scores
+            self.pickle_scores(datetime.now().strftime('%m-%d-%H:%M'))
+
+        elif model == 'KNN':
+            knn_pipe = Pipeline([('mms', MinMaxScaler()),
+                                ('knn', KNeighborsClassifier())])
+            params = [{'knn__n_neighbors': [3, 5, 10, 20, 50, 100]}]
+            gs_knn = GridSearchCV(knn_pipe,
+                                  param_grid=params,
+                                  scoring='accuracy',
+                                  cv=5)
+
+            for key_dim in tqdm(self.new_dim.keys(), desc='KNN'):
+                gs_knn.fit(self.new_dim[key_dim][0].T, self.y_train)
+                self.scores[key_dim] = [
+                    gs_knn.score(self.new_dim[key_dim][1].T, self.y_test),
+                    gs_knn.best_params_
+                ]
+
+            # Pickle all the scores
+            self.pickle_scores(datetime.now().strftime('%m-%d-%H:%M'))
 
         df = pd.DataFrame.from_dict(self.scores, orient='index', columns=[
                                     'Best Score', 'Params']).reset_index()
@@ -261,10 +312,23 @@ class Dim:
 
         df = df.drop('index', axis=1)
 
-        df = df.sort_values('Best Score').groupby(
-            'Dim. Technique', as_index=False).first()
+        df = df.sort_values('Best Score', ascending=False)
 
         df.to_csv('/Users/espina/Documents/TFM/tfm_code/scores/' +
                   datetime.now().strftime('%m-%d-%H:%M') + '.csv')
         df.to_excel('/Users/espina/Documents/TFM/tfm_code/scores/' +
                     datetime.now().strftime('%m-%d-%H:%M') + '.xlsx')
+
+        # df = df.groupby('Dim. Technique', as_index=False).first()
+
+        return df
+
+    def plot_artificial(self, n_rows, n_cols):
+        fig, ax = plt.subplots(
+            n_rows, n_cols, figsize=(15, 12))
+        y = self.y_train
+        for idx, key_dim in enumerate(list(self.new_dim.keys())):
+            ax[floor(idx/n_cols)][idx % n_cols].scatter(self.new_dim[key_dim]
+                                                        [0][0], self.new_dim[key_dim][0][1], c=y)
+            ax[floor(idx/n_cols)][idx % n_cols].set_title(list(self.new_dim.keys())
+                                                          [idx][1] + ' ' + list(self.new_dim.keys())[idx][2])

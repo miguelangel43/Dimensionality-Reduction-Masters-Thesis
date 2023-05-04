@@ -52,16 +52,22 @@ class Dim:
         with open(input_path, 'rb') as f:
             self.new_dim = pickle.load(f)
 
-    def get_eigenvalues(self):
+    def get_weights(self):
         """Return the eigenvalues. Calculates the variation of the data projected
         onto the discovered dimensions as a proxy for the eigenvalues."""
         res = pd.DataFrame()
         for key in self.new_dim.keys():
+            # Calculate variations
             var_dims = [np.var(self.new_dim[key][0][i])
                         for i in range(len(self.new_dim[key][0]))]
             por_eigenvals = [x/sum(var_dims) for x in var_dims]
             res[key+('Var',)] = var_dims
-            res[key+('%',)] = por_eigenvals
+            res[key+('Var %',)] = por_eigenvals
+            # Calculate regression betas
+            betas = [abs(x) for x in LinearRegression().fit(
+                self.new_dim[key][0].T, self.y_train).coef_]
+            res[key+('Beta',)] = betas
+            res[key+('Beta %',)] = [x/sum(betas) for x in betas]
 
         res.columns = pd.MultiIndex.from_tuples(
             res.columns.to_list())
@@ -152,7 +158,7 @@ class Dim:
             # No known way of getting the components
             key = (str(dim) + 'Dim', 'LOL', '')
             pbar.set_description(str(key))
-            self.new_dim[key] = self.lol_model(dim, n_components=20)
+            self.new_dim[key] = self.lol_model(dim, n_components=dim)
 
             k = floor(sqrt(min(len(self.X_train), len(self.X_train[0]))))
             key = (str(dim) + 'Dim', 'LPP', 'k=' + str(k))
@@ -323,7 +329,7 @@ class Dim:
 
         return df
 
-    def plot_artificial(self, n_rows, n_cols):
+    def plot_artificial(self, n_rows, n_cols, save_name=None):
         fig, ax = plt.subplots(
             n_rows, n_cols, figsize=(15, 12))
         y = self.y_train
@@ -332,3 +338,45 @@ class Dim:
                                                         [0][0], self.new_dim[key_dim][0][1], c=y)
             ax[floor(idx/n_cols)][idx % n_cols].set_title(list(self.new_dim.keys())
                                                           [idx][1] + ' ' + list(self.new_dim.keys())[idx][2])
+        if save_name is not None:
+            plt.savefig(
+                '/Users/espina/Documents/TFM/tfm_code/plots/' + save_name + '.png')
+
+    def plot_artificial_multilabel(self, n_rows, n_cols, save_name=None):
+        fig, ax = plt.subplots(
+            n_rows, n_cols, figsize=(15, 12))
+
+        zero_class = np.where(self.y_train[:, 0])
+        one_class = np.where(self.y_train[:, 1])
+        for idx, key_dim in enumerate(list(self.new_dim.keys())):
+            X = self.new_dim[key_dim][0].T
+            # Plot all data points in grey
+            ax[floor(idx/n_cols)][idx % n_cols].scatter(X[:, 0],
+                                                        X[:, 1], s=40, c="gray", edgecolors=(0, 0, 0))
+            # Plot data points with a 1 in the first position
+            ax[floor(idx/n_cols)][idx % n_cols].scatter(
+                X[zero_class, 0],
+                X[zero_class, 1],
+                s=160,
+                edgecolors="b",
+                facecolors="none",
+                linewidths=2,
+                label="Class 1",
+            )
+            # Plot data points with a 1 in the second position
+            ax[floor(idx/n_cols)][idx % n_cols].scatter(
+                X[one_class, 0],
+                X[one_class, 1],
+                s=80,
+                edgecolors="orange",
+                facecolors="none",
+                linewidths=2,
+                label="Class 2",
+            )
+
+            ax[floor(idx/n_cols)][idx % n_cols].set_title(list(self.new_dim.keys())
+                                                          [idx][1] + ' ' + list(self.new_dim.keys())[idx][2])
+
+            if save_name is not None:
+                plt.savefig(
+                    '/Users/espina/Documents/TFM/tfm_code/plots/' + save_name + '.png')

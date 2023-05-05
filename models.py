@@ -12,6 +12,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, accuracy_sc
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.mixture import GaussianMixture
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import pickle
@@ -78,6 +79,29 @@ class Dim:
                      datetime.now().strftime('%m-%d-%H:%M') + '.xlsx')
 
         return res
+
+    def hellinger_dist(self, p, q):
+        # distance between p an d
+        # p and q are np array probability distributions
+        n = len(p)
+        sum = 0.0
+        for i in range(n):
+            sum += (np.sqrt(p[i]) - np.sqrt(q[i]))**2
+        result = (1.0 / np.sqrt(2.0)) * np.sqrt(sum)
+        return result
+
+    def get_hellinger(self):
+        df = pd.DataFrame()
+        for key1 in tqdm(self.new_dim.keys()):
+            gm1 = GaussianMixture(n_components=20, random_state=0).fit(
+                self.new_dim[key1][0].T).weights_
+            df[key1] = [self.hellinger_dist(gm1, GaussianMixture(n_components=20, random_state=0).fit(
+                self.new_dim[key2][0].T).weights_) for key2 in self.new_dim.keys()]
+        index = ['-'.join(col) for col in df.columns]
+        df['index'] = index
+        df = df.set_index('index')
+        df.columns = index
+        return df.style.background_gradient(cmap='coolwarm')
 
     def get_corr_table(self, num_dim):
         # Load the data into a Pandas df

@@ -36,7 +36,8 @@ def kernel(X, *args, **kwargs):
     return None
 
 
-def SLMVPTrain(X, Y, rank, typeK, gammaX, gammaY, polyValue):  # Parametros typeK, gammas, rank
+# Parametros typeK, gammas, rank
+def SLMVPTrain(X, Y, rank, typeK, gammaX, gammaY, polyValue, multilabel=None):
 
     # Performs Singular value decomposition
     Ux, sx, Vx = np.linalg.svd(X, full_matrices=False)
@@ -57,7 +58,10 @@ def SLMVPTrain(X, Y, rank, typeK, gammaX, gammaY, polyValue):  # Parametros type
     KXX = KXX - (np.dot(np.dot(j, j.T), KXX))/l - (np.dot(KXX, np.dot(j, j.T))) / \
         l + (np.dot((np.dot(j.T, np.dot(KXX, j))), np.dot(j, j.T)))/(np.power(l, 2))
 
-    Y = np.reshape(Y, (1, Y.size))
+    if multilabel is None:
+        Y = np.reshape(Y, (1, Y.size))
+    else:
+        Y = Y.T
 
     KYY = kernel(Y, typeK=typeK, YValue=Y,
                  gammaValue=gammaY, polyValue=polyValue)

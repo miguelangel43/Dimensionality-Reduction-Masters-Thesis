@@ -13,6 +13,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.mixture import GaussianMixture
+from sklearn.metrics import r2_score
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import pickle
@@ -41,6 +42,7 @@ class Dim:
         self.new_dim = dict()  # X_train, X_test, components
         self.scores = dict()
         self.results = dict()
+        self.num_dim = None
 
     def pickle_dim(self, output_path):
         if len(self.new_dim) == 0:
@@ -65,10 +67,14 @@ class Dim:
             res[key+('Var',)] = var_dims
             res[key+('Var %',)] = por_eigenvals
             # Calculate regression betas
-            betas = [abs(x) for x in LinearRegression().fit(
-                self.new_dim[key][0].T, self.y_train).coef_]
+            model = LinearRegression().fit(
+                self.new_dim[key][0].T, self.y_train)
+            betas = [abs(x) for x in model.coef_]
+            r_squared = model.score(
+                self.new_dim[key][0].T, self.y_train)
             res[key+('Beta',)] = betas
             res[key+('Beta %',)] = [x/sum(betas) for x in betas]
+            res[key+('R^2',)] = [r_squared for x in range(len(betas))]
 
         res.columns = pd.MultiIndex.from_tuples(
             res.columns.to_list())
@@ -80,36 +86,14 @@ class Dim:
 
         return res
 
-    def hellinger_dist(self, p, q):
-        # distance between p an d
-        # p and q are np array probability distributions
-        n = len(p)
-        sum = 0.0
-        for i in range(n):
-            sum += (np.sqrt(p[i]) - np.sqrt(q[i]))**2
-        result = (1.0 / np.sqrt(2.0)) * np.sqrt(sum)
-        return result
-
-    def get_hellinger(self):
-        df = pd.DataFrame()
-        for key1 in tqdm(self.new_dim.keys()):
-            gm1 = GaussianMixture(n_components=20, random_state=0).fit(
-                self.new_dim[key1][0].T).weights_
-            df[key1] = [self.hellinger_dist(gm1, GaussianMixture(n_components=20, random_state=0).fit(
-                self.new_dim[key2][0].T).weights_) for key2 in self.new_dim.keys()]
-        index = ['-'.join(col) for col in df.columns]
-        df['index'] = index
-        df = df.set_index('index')
-        df.columns = index
-        return df.style.background_gradient(cmap='coolwarm')
-
-    def get_corr_table(self, num_dim):
+    def get_corr_table(self, num_dim=None):
+        if num_dim is None:
+            num_dim = self.num_dim
         # Load the data into a Pandas df
         df = pd.DataFrame(self.X_train, columns=self.col_names[:-1])
-        for key in self.new_dim.keys():
-            if num_dim == int(key[0][0]):
-                for i in range(num_dim):
-                    df[key+(i,)] = self.new_dim[key][0][i]
+        for key in tqdm(self.new_dim.keys()):
+            for i in range(num_dim):
+                df[key+(i,)] = self.new_dim[key][0][i]
 
         # Correlations between the original data and each principal component
         df_corr = df.corr().iloc[:len(self.X_train[0]), len(self.X_train[0]):]
@@ -129,9 +113,11 @@ class Dim:
 
         return df_corr
 
-    def apply_dim(self, num_dim=[1, 2, 5, 10]):  # 5, 10, 50 dims takes 5min
+    # 5, 10, 50 dims takes 5min
+    def apply_dim(self, num_dim=[1, 2, 5, 10], multilabel=None):
         """Run dim. red. algorithms and save new features in self.new_dim"""
         if not isinstance(num_dim, list):
+            self.num_dim = num_dim
             num_dim = [num_dim]
 
         pbar = tqdm(num_dim)
@@ -139,40 +125,44 @@ class Dim:
             key = (str(dim) + 'Dim', 'SLMVP', 'Polynomial-Order=5')
             pbar.set_description(str(key))
             self.new_dim[key] = self.slmvp_model(
-                dim, 'polynomial', poly_order=5)
+                dim, 'polynomial', poly_order=5, multilabel=multilabel)
 
             key = (str(dim) + 'Dim', 'SLMVP', 'Linear')
             pbar.set_description(str(key))
-            self.new_dim[key] = self.slmvp_model(dim, 'linear')
+            self.new_dim[key] = self.slmvp_model(
+                dim, 'linear', multilabel=multilabel)
 
             key = (str(dim) + 'Dim', 'SLMVP', 'Radial-Gammas=0.01')
             pbar.set_description(str(key))
-            self.new_dim[key] = self.slmvp_model(dim, 'radial', gammas=0.01)
+            self.new_dim[key] = self.slmvp_model(
+                dim, 'radial', gammas=0.01, multilabel=multilabel)
 
             key = (str(dim) + 'Dim', 'SLMVP', 'Radial-Gammas=0.1')
             pbar.set_description(str(key))
-            self.new_dim[key] = self.slmvp_model(dim, 'radial', gammas=0.1)
+            self.new_dim[key] = self.slmvp_model(
+                dim, 'radial', gammas=0.1, multilabel=multilabel)
 
             key = (str(dim) + 'Dim', 'SLMVP', 'Radial-Gammas=1')
             pbar.set_description(str(key))
-            self.new_dim[key] = self.slmvp_model(dim, 'radial', gammas=1)
+            self.new_dim[key] = self.slmvp_model(
+                dim, 'radial', gammas=1, multilabel=multilabel)
 
             key = (str(dim) + 'Dim', 'PCA', '')
             pbar.set_description(str(key))
             self.new_dim[key] = self.pca_model(dim)
 
             # No known way of getting the components
-            # key = (str(dim) + 'Dim', 'KPCA', 'Linear')
-            # pbar.set_description(str(key))
-            # self.new_dim[key] = self.kpca_model(dim, 'linear')
+            key = (str(dim) + 'Dim', 'KPCA', 'Linear')
+            pbar.set_description(str(key))
+            self.new_dim[key] = self.kpca_model(dim, 'linear')
 
             key = (str(dim) + 'Dim', 'KPCA', 'Polynomial-Order=5')
             pbar.set_description(str(key))
             self.new_dim[key] = self.kpca_model(dim, 'poly')
 
-            key = (str(dim) + 'Dim', 'KPCA', 'Radial-Gamma=0.1')
-            pbar.set_description(str(key))
-            self.new_dim[key] = self.kpca_model(dim, 'rbf', gamma=0.1)
+            # key = (str(dim) + 'Dim', 'KPCA', 'Radial-Gamma=0.1')
+            # pbar.set_description(str(key))
+            # self.new_dim[key] = self.kpca_model(dim, 'rbf', gamma=0.1)
 
             key = (str(dim) + 'Dim', 'KPCA', 'Radial-Gamma=' +
                    str(round(1/len(self.X_train[0]), 3)))
@@ -210,14 +200,15 @@ class Dim:
         self.pickle_dim(output_path=datetime.now().strftime(
             '%m-%d-%H:%M'))
 
-    def slmvp_model(self, n, type_kernel, gammas=None, poly_order=None):
+    def slmvp_model(self, n, type_kernel, gammas=None, poly_order=None, multilabel=None):
         # Get the principal components
         BAux = SLMVPTrain(X=self.X_train.T, Y=self.y_train,
                           rank=n,
                           typeK=type_kernel,
                           gammaX=gammas,
                           gammaY=gammas,
-                          polyValue=poly_order)
+                          polyValue=poly_order,
+                          multilabel=multilabel)
 
         # Get the data projected onto the new dimensions
         data_train, data_test = SLMVP_transform(
@@ -366,6 +357,20 @@ class Dim:
             plt.savefig(
                 '/Users/espina/Documents/TFM/tfm_code/plots/' + save_name + '.png')
 
+    def plot_artificial_3D(self, n_rows, n_cols, save_name=None):
+        fig = plt.figure(figsize=(15, 12))
+        y = self.y_train
+        for idx, key_dim in enumerate(list(self.new_dim.keys())):
+            ax = fig.add_subplot(n_rows, n_cols, idx+1, projection='3d')
+            ax.scatter(self.new_dim[key_dim][0][0],
+                       self.new_dim[key_dim][0][1],
+                       self.new_dim[key_dim][0][2], c=y)
+            ax.set_title(list(self.new_dim.keys())[
+                         idx][1] + ' ' + list(self.new_dim.keys())[idx][2])
+        if save_name is not None:
+            plt.savefig(
+                '/Users/espina/Documents/TFM/tfm_code/plots/' + save_name + '.png')
+
     def plot_artificial_multilabel(self, n_rows, n_cols, save_name=None):
         fig, ax = plt.subplots(
             n_rows, n_cols, figsize=(15, 12))
@@ -404,3 +409,39 @@ class Dim:
             if save_name is not None:
                 plt.savefig(
                     '/Users/espina/Documents/TFM/tfm_code/plots/' + save_name + '.png')
+
+    def plot_artificial_multilabel_3D(self, n_rows, n_cols, save_name=None):
+        fig = plt.figure(figsize=(15, 12))
+        zero_class = np.where(self.y_train[:, 0])
+        one_class = np.where(self.y_train[:, 1])
+        for idx, key_dim in enumerate(list(self.new_dim.keys())):
+            ax = fig.add_subplot(n_rows, n_cols, idx+1, projection='3d')
+            X = self.new_dim[key_dim][0].T
+            # Plot all data points in grey
+            ax.scatter(X[:, 0], X[:, 1], s=40, c="gray", edgecolors=(0, 0, 0))
+            # Plot data points with a 1 in the first position
+            ax.scatter(
+                X[zero_class, 0],
+                X[zero_class, 1],
+                s=160,
+                edgecolors="b",
+                facecolors="none",
+                linewidths=2,
+                label="Class 1",
+            )
+            # Plot data points with a 1 in the second position
+            ax.scatter(
+                X[one_class, 0],
+                X[one_class, 1],
+                s=80,
+                edgecolors="orange",
+                facecolors="none",
+                linewidths=2,
+                label="Class 2",
+            )
+            ax.set_title(list(self.new_dim.keys())[
+                         idx][1] + ' ' + list(self.new_dim.keys())[idx][2])
+
+        if save_name is not None:
+            plt.savefig(
+                '/Users/espina/Documents/TFM/tfm_code/plots/' + save_name + '.png')

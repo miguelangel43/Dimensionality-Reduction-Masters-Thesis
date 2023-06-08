@@ -90,7 +90,10 @@ class Dim:
         if num_dim is None:
             num_dim = self.num_dim
         # Load the data into a Pandas df
-        df = pd.DataFrame(self.X_train, columns=self.col_names[:-1])
+        if self.col_names is not None:
+            df = pd.DataFrame(self.X_train, columns=self.col_names[:-1])
+        else:
+            df = pd.DataFrame(self.X_train)
         for key in tqdm(self.new_dim.keys()):
             for i in range(num_dim):
                 df[key+(i,)] = self.new_dim[key][0][i]
@@ -122,6 +125,7 @@ class Dim:
 
         pbar = tqdm(num_dim)
         for dim in pbar:
+
             key = (str(dim) + 'Dim', 'SLMVP', 'Polynomial-Order=5')
             pbar.set_description(str(key))
             self.new_dim[key] = self.slmvp_model(
@@ -142,23 +146,18 @@ class Dim:
             self.new_dim[key] = self.slmvp_model(
                 dim, 'radial', gammas=0.1, multilabel=multilabel)
 
-            key = (str(dim) + 'Dim', 'SLMVP', 'Radial-Gammas=1')
-            pbar.set_description(str(key))
-            self.new_dim[key] = self.slmvp_model(
-                dim, 'radial', gammas=1, multilabel=multilabel)
-
             key = (str(dim) + 'Dim', 'PCA', '')
             pbar.set_description(str(key))
             self.new_dim[key] = self.pca_model(dim)
 
-            # No known way of getting the components
-            key = (str(dim) + 'Dim', 'KPCA', 'Linear')
-            pbar.set_description(str(key))
-            self.new_dim[key] = self.kpca_model(dim, 'linear')
+            # # No known way of getting the components
+            # key = (str(dim) + 'Dim', 'KPCA', 'Linear')
+            # pbar.set_description(str(key))
+            # self.new_dim[key] = self.kpca_model(dim, 'linear')
 
-            key = (str(dim) + 'Dim', 'KPCA', 'Polynomial-Order=5')
-            pbar.set_description(str(key))
-            self.new_dim[key] = self.kpca_model(dim, 'poly')
+            # key = (str(dim) + 'Dim', 'KPCA', 'Polynomial-Order=5')
+            # pbar.set_description(str(key))
+            # self.new_dim[key] = self.kpca_model(dim, 'poly')
 
             # key = (str(dim) + 'Dim', 'KPCA', 'Radial-Gamma=0.1')
             # pbar.set_description(str(key))
@@ -169,15 +168,16 @@ class Dim:
             pbar.set_description(str(key))
             self.new_dim[key] = self.kpca_model(dim, 'rbf')
 
-            # No known way of getting the components
-            key = (str(dim) + 'Dim', 'LOL', '')
-            pbar.set_description(str(key))
-            self.new_dim[key] = self.lol_model(dim, n_components=dim)
+            if multilabel is None:
+                # No known way of getting the components
+                key = (str(dim) + 'Dim', 'LOL', '')
+                pbar.set_description(str(key))
+                self.new_dim[key] = self.lol_model(dim, n_components=dim)
 
-            k = floor(sqrt(min(len(self.X_train), len(self.X_train[0]))))
-            key = (str(dim) + 'Dim', 'LPP', 'k=' + str(k))
-            pbar.set_description(str(key))
-            self.new_dim[key] = self.lpp_model(dim, k)
+            # k = floor(sqrt(min(len(self.X_train), len(self.X_train[0]))))
+            # key = (str(dim) + 'Dim', 'LPP', 'k=' + str(k))
+            # pbar.set_description(str(key))
+            # self.new_dim[key] = self.lpp_model(dim, k)
 
             k = floor(sqrt(len(self.X_train)))
             reg = 0.001
@@ -344,9 +344,9 @@ class Dim:
 
         return df
 
-    def plot_artificial(self, n_rows, n_cols, save_name=None):
+    def plot_artificial(self, n_rows, n_cols, figsize=(15, 12), save_name=None):
         fig, ax = plt.subplots(
-            n_rows, n_cols, figsize=(15, 12))
+            n_rows, n_cols, figsize=figsize)
         y = self.y_train
         for idx, key_dim in enumerate(list(self.new_dim.keys())):
             ax[floor(idx/n_cols)][idx % n_cols].scatter(self.new_dim[key_dim]
@@ -357,8 +357,8 @@ class Dim:
             plt.savefig(
                 '/Users/espina/Documents/TFM/tfm_code/plots/' + save_name + '.png')
 
-    def plot_artificial_3D(self, n_rows, n_cols, save_name=None):
-        fig = plt.figure(figsize=(15, 12))
+    def plot_artificial_3D(self, n_rows, n_cols, figsize=(15, 12), save_name=None):
+        fig = plt.figure(figsize=figsize)
         y = self.y_train
         for idx, key_dim in enumerate(list(self.new_dim.keys())):
             ax = fig.add_subplot(n_rows, n_cols, idx+1, projection='3d')
@@ -371,19 +371,19 @@ class Dim:
             plt.savefig(
                 '/Users/espina/Documents/TFM/tfm_code/plots/' + save_name + '.png')
 
-    def plot_artificial_multilabel(self, n_rows, n_cols, save_name=None):
+    def plot_artificial_multilabel(self, n_rows, n_cols, figsize=(15, 12), save_name=None):
         fig, ax = plt.subplots(
-            n_rows, n_cols, figsize=(15, 12))
+            n_rows, n_cols, figsize=figsize)
 
         zero_class = np.where(self.y_train[:, 0])
         one_class = np.where(self.y_train[:, 1])
         for idx, key_dim in enumerate(list(self.new_dim.keys())):
             X = self.new_dim[key_dim][0].T
             # Plot all data points in grey
-            ax[floor(idx/n_cols)][idx % n_cols].scatter(X[:, 0],
-                                                        X[:, 1], s=40, c="gray", edgecolors=(0, 0, 0))
+            p1 = ax[floor(idx/n_cols)][idx % n_cols].scatter(X[:, 0],
+                                                             X[:, 1], s=40, c="gray", edgecolors=(0, 0, 0))
             # Plot data points with a 1 in the first position
-            ax[floor(idx/n_cols)][idx % n_cols].scatter(
+            p2 = ax[floor(idx/n_cols)][idx % n_cols].scatter(
                 X[zero_class, 0],
                 X[zero_class, 1],
                 s=160,
@@ -393,7 +393,7 @@ class Dim:
                 label="Class 1",
             )
             # Plot data points with a 1 in the second position
-            ax[floor(idx/n_cols)][idx % n_cols].scatter(
+            p3 = ax[floor(idx/n_cols)][idx % n_cols].scatter(
                 X[one_class, 0],
                 X[one_class, 1],
                 s=80,
@@ -406,12 +406,16 @@ class Dim:
             ax[floor(idx/n_cols)][idx % n_cols].set_title(list(self.new_dim.keys())
                                                           [idx][1] + ' ' + list(self.new_dim.keys())[idx][2])
 
-            if save_name is not None:
-                plt.savefig(
-                    '/Users/espina/Documents/TFM/tfm_code/plots/' + save_name + '.png')
+            handles, labels = ax[floor(idx/n_cols)][idx %
+                                                    n_cols].get_legend_handles_labels()
+        fig.legend(handles, labels, loc='lower right')
 
-    def plot_artificial_multilabel_3D(self, n_rows, n_cols, save_name=None):
-        fig = plt.figure(figsize=(15, 12))
+        if save_name is not None:
+            plt.savefig(
+                '/Users/espina/Documents/TFM/tfm_code/plots/' + save_name + '.png')
+
+    def plot_artificial_multilabel_3D(self, n_rows, n_cols, figsize=(15, 12), save_name=None):
+        fig = plt.figure(figsize=figsize)
         zero_class = np.where(self.y_train[:, 0])
         one_class = np.where(self.y_train[:, 1])
         for idx, key_dim in enumerate(list(self.new_dim.keys())):

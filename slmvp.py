@@ -37,12 +37,12 @@ def kernel(X, *args, **kwargs):
 
 
 # Parametros typeK, gammas, rank
-def SLMVPTrain(X, Y, rank, typeK, gammaX, gammaY, polyValue, multilabel=None):
+def SLMVPTrain(X, Y, rank, typeK, gammaX, gammaY, polyValue, multilabel=None, debug=False):
 
     # Performs Singular value decomposition
     Ux, sx, Vx = np.linalg.svd(X, full_matrices=False)
 
-    # Put the eigenvalues sx in the diagonal of a zero matrix
+    # Put the singular values sx in the diagonal of a zero matrix
     Sx = np.zeros((sx.shape[0], sx.shape[0]))
     Sx[:sx.shape[0], :sx.shape[0]] = np.diag(sx)
 
@@ -86,7 +86,16 @@ def SLMVPTrain(X, Y, rank, typeK, gammaX, gammaY, polyValue, multilabel=None):
 
     # Projections on the learned space
     # P = np.dot(B.T,X)
-    return B[:, 1:rank+1]  # return the learned model
+
+    # XKKXKKYX = np.dot(np.dot(X, KXXKYY), X.T)
+    # U, s, V = np.linalg.svd(XKKXKKYX)
+
+    # return U
+
+    if debug == False:
+        return B[:, 1:rank+1]  # return the learned model
+    else:
+        return KXXKYY, KXXKYYR, B, X
 
 
 def SLMVP_transform(B, X):

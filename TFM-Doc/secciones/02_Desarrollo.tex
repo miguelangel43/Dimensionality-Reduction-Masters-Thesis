@@ -1,0 +1,31 @@
+\chapter{Methodology}
+
+\section{Interpretation of Components}
+% 1. Calculate the 
+In order to interpret the new dimensions, we compute the correlation between the data projected onto the original features and the data projected onto the new dimension. The features that are more strongly correlated (negatively or positively) with the component, will be the ones that the dimensionality reduction technique will deem as more important.
+
+$$
+r_i =
+\begin{bmatrix}
+    \rho_{i,1} \\
+    \rho_{i,2} \\
+    ... \\
+    \rho_{i,n}
+\end{bmatrix}
+$$
+
+By taking the rank of the absolute correlation, we obtain a vector that indicates the importance that the component gives to every one of the original features.
+
+$$
+s_i =
+\begin{bmatrix}
+    R(|\rho_{i,1}|) \\
+    R(|\rho_{i,2}|) \\
+    ... \\
+    R(|\rho_{i,n}|)
+\end{bmatrix}
+$$
+
+Taking the correlation of the vectors, we can compare two
+
+

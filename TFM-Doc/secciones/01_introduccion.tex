@@ -1,0 +1,74 @@
+\chapter{Introduction}
+
+% Feature Selection & Feature Extraction
+
+% Supervised vs. Unsupervised
+
+% Local vs. Not Local
+
+% List the objectives of the thesis
+\begin{enumerate}
+    \item Dig deep into SLMVP intricacies.
+    \item Train SLMVP and other models and find the configuration of their parameters that is best for a classification task.
+    \item Draw meaningful conclusions from the coefficients of the components that result from applying each of the dimensionality reduction techniques.
+    \item Compare SLMVP against other state-of-the-art techniques on basis of the interpretation of their coefficients.
+    \item Apply these techniques to real-world datasets.
+\end{enumerate}
+
+% List the main sections the thesis is organized into. With a very brief summary.
+\begin{enumerate}
+    \item Introduction.
+    \item Methodology: the experiments are described.
+          \subitem Datasets: the datasets (ORL, COIL2000) are introduced.
+\end{enumerate}
+
+\section{Dimensionality Reduction}
+
+\subsection{PCA}
+\subsection{KPCA}
+\subsection{LOL}
+\subsection{LPP}
+\subsection{LLE}
+\subsection{SLMVP}
+
+\section{Spearman's Rank Correlation Coefficient}
+Spearman's rank correlation coefficient is a nonparametric measure of rank correlation. It measures the statistical dependence between the rankings of two variables. It is defined as the Pearson correlation coefficient between the rank variables. For variables $X$, $Y$ converted to ranks $R(X)$, $R(Y)$. The Spearman rank correlation coefficient is calculated in the following way.
+\begin{equation}
+    r_s = \rho_{R(X), R(Y)} = \frac{cov(R(X),R(Y))}{\sigma_{R(X)} \sigma_{R(Y)}}
+\end{equation}
+
+\section{Datasets}
+\subsection{Artificial Dataset}
+\subsection{Our Database of Faces (ORL) Dataset}
+This dataset was created at the AT\&T Laboratories in Cambridge, UK, in the context of a face recognition project the laboratory was doing with the Speech, Vision and Robotics Group of the Cambridge University Engineering Department. It contains face images taken between April 1992 and April 1994, 10 images of 40 different subjects, a total of 400 images.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{The-ORL-database-for-training-and-testing.png}
+    \caption{Visualization of }
+    \label{fig:orl_faces}
+\end{figure}
+
+\subsection{COIL2000}
+This data set used in the CoIL 2000 Challenge contains information on customers of an insurance company. The data consists of 86 variables and includes product usage data and socio-demographic data. The data was supplied by the Dutch data mining company Sentient Machine Research and is based on a real world business problem. The training set contains over 5000 descriptions of customers, including the information of whether or not they have a caravan insurance policy. A test set contains 4000 customers of whom only the organizers know if they have a caravan insurance policy.
+\cite{van2004bias}
+
+
+% 1. Introduction
+% Introduction of all the dimensionality reduction techniques, leading to the introduction
+% of SLMVP and its unique characteristics (e.g.: supervised, local) [SLMVP Paper Chapter 2]
+
+% SLMVP solves the problem of LPP to work on problems with "large p small m"
+
+% 2. Methodology
+
+% Apply different dimensionality reduction techniques
+% Get classification results
+% Show with artificial data under what conditions SLMVP is better
+%   than other techniques.
+
+% Get correlation tables between original features and new dimensions.
+% () Get eigenvalues
+%%---------------------------------------------------------
+
+% Maybe some background on using kernels?

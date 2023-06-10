@@ -1,10 +1,22 @@
 \chapter{Introduction}
 
 % Feature Selection & Feature Extraction
+Feature selection and feature extraction are two commonly used techniques in machine learning to reduce the dimensionality of a dataset. These techniques aim at identifying the most relevant features from the original set of input variables.
+
+Feature selection tries to identify the subset that contains the most relevant and informative features while excluding redundant ones.
+
+Feature extraction transforms the original set of features into a new set that is created by combining the original variables.
+
+This thesis will be devoted to feature extraction techniques.
 
 % Supervised vs. Unsupervised
+Supervised learning involves training a model on labeled data, where the input samples have associated target or output labels.
+
+Unsupervised learning involves training a model on unlabeled data, where the input samples do not have associated target or output labels.
 
 % Local vs. Not Local
+Local dimensionality reduction techniques focus on preserving the local structure and relationships among data points.
+
 
 % List the objectives of the thesis
 \begin{enumerate}
@@ -23,12 +35,26 @@
 \end{enumerate}
 
 \section{Dimensionality Reduction}
+Due to the massive technological advancements in processing power and data storage that have happened in the last few decades, data in all areas of society has grown exponentially. This abundance of data has introduced many challenges, including the curse of dimensionality. The curse of dimensionality refers to the many challenges that arise when working with high dimensional data. Some of those are: increased computational complexity, reduced interpretability, and the risk of overfitting.
+
+Dimensionality reduction techniques have emerged as essential tools to address these issues by transforming high-dimensional data into a lower-dimensional space while preserving variability. This thesis provides an in-depth exploration of many of the most relevant dimensionality reduction techniques (PCA, KPCA, LOL, LPP, LLE and SLMVP).
+%\cite{verleysen2005curse}
 
 \subsection{PCA}
+
+
 \subsection{KPCA}
+
+
 \subsection{LOL}
+
+
 \subsection{LPP}
+
+
 \subsection{LLE}
+
+
 \subsection{SLMVP}
 
 \section{Spearman's Rank Correlation Coefficient}
@@ -36,22 +62,6 @@ Spearman's rank correlation coefficient is a nonparametric measure of rank corre
 \begin{equation}
     r_s = \rho_{R(X), R(Y)} = \frac{cov(R(X),R(Y))}{\sigma_{R(X)} \sigma_{R(Y)}}
 \end{equation}
-
-\section{Datasets}
-\subsection{Artificial Dataset}
-\subsection{Our Database of Faces (ORL) Dataset}
-This dataset was created at the AT\&T Laboratories in Cambridge, UK, in the context of a face recognition project the laboratory was doing with the Speech, Vision and Robotics Group of the Cambridge University Engineering Department. It contains face images taken between April 1992 and April 1994, 10 images of 40 different subjects, a total of 400 images.
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.5\textwidth]{The-ORL-database-for-training-and-testing.png}
-    \caption{Visualization of }
-    \label{fig:orl_faces}
-\end{figure}
-
-\subsection{COIL2000}
-This data set used in the CoIL 2000 Challenge contains information on customers of an insurance company. The data consists of 86 variables and includes product usage data and socio-demographic data. The data was supplied by the Dutch data mining company Sentient Machine Research and is based on a real world business problem. The training set contains over 5000 descriptions of customers, including the information of whether or not they have a caravan insurance policy. A test set contains 4000 customers of whom only the organizers know if they have a caravan insurance policy.
-\cite{van2004bias}
 
 
 % 1. Introduction

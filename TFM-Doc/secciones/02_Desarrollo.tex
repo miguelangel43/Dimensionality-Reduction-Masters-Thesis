@@ -1,29 +1,57 @@
 \chapter{Methodology}
 
+% 1. Classification process
+
+% 2. Datasets
+
+% 2. Correlation of components with original features
+%   - Show plots (Slope Chart)
+%   - 
+
+% 3. Spearman Rank correlation between techniques
+
+
+\section{Datasets}
+
+\subsection{Artificial Dataset}
+\subsection{Our Database of Faces (ORL) Dataset}
+This dataset was created at the AT\&T Laboratories in Cambridge, UK, in the context of a face recognition project the laboratory was doing with the Speech, Vision and Robotics Group of the Cambridge University Engineering Department. It contains face images taken between April 1992 and April 1994, 10 images of 40 different subjects, a total of 400 images.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{The-ORL-database-for-training-and-testing.png}
+    \caption{Visualization of }
+    \label{fig:orl_faces}
+\end{figure}
+
+\subsection{COIL2000}
+This data set used in the CoIL 2000 Challenge contains information on customers of an insurance company. The data consists of 86 variables and includes product usage data and socio-demographic data. The data was supplied by the Dutch data mining company Sentient Machine Research and is based on a real world business problem. The training set contains over 5000 descriptions of customers, including the information of whether or not they have a caravan insurance policy. A test set contains 4000 customers of whom only the organizers know if they have a caravan insurance policy.
+%\cite{van2004bias}
+
 \section{Interpretation of Components}
 % 1. Calculate the 
 In order to interpret the new dimensions, we compute the correlation between the data projected onto the original features and the data projected onto the new dimension. The features that are more strongly correlated (negatively or positively) with the component, will be the ones that the dimensionality reduction technique will deem as more important.
 
 $$
-r_i =
-\begin{bmatrix}
-    \rho_{i,1} \\
-    \rho_{i,2} \\
-    ... \\
-    \rho_{i,n}
-\end{bmatrix}
+    r_i =
+    \begin{bmatrix}
+        \rho_{i,1} \\
+        \rho_{i,2} \\
+        ...        \\
+        \rho_{i,n}
+    \end{bmatrix}
 $$
 
 By taking the rank of the absolute correlation, we obtain a vector that indicates the importance that the component gives to every one of the original features.
 
 $$
-s_i =
-\begin{bmatrix}
-    R(|\rho_{i,1}|) \\
-    R(|\rho_{i,2}|) \\
-    ... \\
-    R(|\rho_{i,n}|)
-\end{bmatrix}
+    s_i =
+    \begin{bmatrix}
+        R(|\rho_{i,1}|) \\
+        R(|\rho_{i,2}|) \\
+        ...             \\
+        R(|\rho_{i,n}|)
+    \end{bmatrix}
 $$
 
 Taking the correlation of the vectors, we can compare two

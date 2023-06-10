@@ -55,70 +55,13 @@ class Dim:
         with open(input_path, 'rb') as f:
             self.new_dim = pickle.load(f)
 
-    def get_weights(self):
-        """Return the eigenvalues. Calculates the variation of the data projected
-        onto the discovered dimensions as a proxy for the eigenvalues."""
-        res = pd.DataFrame()
-        for key in self.new_dim.keys():
-            # Calculate variations
-            var_dims = [np.var(self.new_dim[key][0][i])
-                        for i in range(len(self.new_dim[key][0]))]
-            por_eigenvals = [x/sum(var_dims) for x in var_dims]
-            res[key+('Var',)] = var_dims
-            res[key+('Var %',)] = por_eigenvals
-            # Calculate regression betas
-            model = LinearRegression().fit(
-                self.new_dim[key][0].T, self.y_train)
-            betas = [abs(x) for x in model.coef_]
-            r_squared = model.score(
-                self.new_dim[key][0].T, self.y_train)
-            res[key+('Beta',)] = betas
-            res[key+('Beta %',)] = [x/sum(betas) for x in betas]
-            res[key+('R^2',)] = [r_squared for x in range(len(betas))]
-
-        res.columns = pd.MultiIndex.from_tuples(
-            res.columns.to_list())
-
-        res.to_csv('/Users/espina/Documents/TFM/tfm_code/evalues/' +
-                   datetime.now().strftime('%m-%d-%H:%M') + '.csv')
-        res.to_excel('/Users/espina/Documents/TFM/tfm_code/evalues/' +
-                     datetime.now().strftime('%m-%d-%H:%M') + '.xlsx')
-
-        return res
-
-    def get_corr_table(self, num_dim=None):
-        if num_dim is None:
-            num_dim = self.num_dim
-        # Load the data into a Pandas df
-        if self.col_names is not None:
-            df = pd.DataFrame(self.X_train, columns=self.col_names[:-1])
-        else:
-            df = pd.DataFrame(self.X_train)
-        for key in tqdm(self.new_dim.keys()):
-            for i in range(num_dim):
-                df[key+(i,)] = self.new_dim[key][0][i]
-
-        # Correlations between the original data and each principal component
-        df_corr = df.corr().iloc[:len(self.X_train[0]), len(self.X_train[0]):]
-
-        # Make df multi-index
-        df_corr.columns = pd.MultiIndex.from_tuples(
-            df_corr.columns.to_list())
-
-        # Take only the abs value of the correlations
-        df_corr = df_corr.abs()
-
-        # Save result in csv
-        df_corr.to_csv('/Users/espina/Documents/TFM/tfm_code/corr/corr_' +
-                       datetime.now().strftime('%m-%d-%H:%M')+'_'+str(num_dim)+'.csv')
-        df_corr.to_excel('/Users/espina/Documents/TFM/tfm_code/corr/corr_' +
-                         datetime.now().strftime('%m-%d-%H:%M')+'_'+str(num_dim)+'.xlsx')
-
-        return df_corr
-
     # 5, 10, 50 dims takes 5min
-    def apply_dim(self, num_dim=[1, 2, 5, 10], multilabel=None):
-        """Run dim. red. algorithms and save new features in self.new_dim"""
+    def apply_dim(self, num_dim=[1, 2, 5, 10], multilabel=None, tflag=None):
+        """Run dim. red. algorithms and save new features in self.new_dim
+
+        Key arguments:
+        tflag -- 
+        """
         if not isinstance(num_dim, list):
             self.num_dim = num_dim
             num_dim = [num_dim]
@@ -126,65 +69,78 @@ class Dim:
         pbar = tqdm(num_dim)
         for dim in pbar:
 
-            key = (str(dim) + 'Dim', 'SLMVP', 'Polynomial-Order=5')
-            pbar.set_description(str(key))
-            self.new_dim[key] = self.slmvp_model(
-                dim, 'polynomial', poly_order=5, multilabel=multilabel)
+            if tflag is None or 1 not in tflag:
+                key = (str(dim) + 'Dim', 'SLMVP', 'Polynomial-Order=5')
+                pbar.set_description(str(key))
+                self.new_dim[key] = self.slmvp_model(
+                    dim, 'polynomial', poly_order=5, multilabel=multilabel)
 
-            key = (str(dim) + 'Dim', 'SLMVP', 'Linear')
-            pbar.set_description(str(key))
-            self.new_dim[key] = self.slmvp_model(
-                dim, 'linear', multilabel=multilabel)
+            if tflag is None or 2 not in tflag:
+                key = (str(dim) + 'Dim', 'SLMVP', 'Linear')
+                pbar.set_description(str(key))
+                self.new_dim[key] = self.slmvp_model(
+                    dim, 'linear', multilabel=multilabel)
 
-            key = (str(dim) + 'Dim', 'SLMVP', 'Radial-Gammas=0.01')
-            pbar.set_description(str(key))
-            self.new_dim[key] = self.slmvp_model(
-                dim, 'radial', gammas=0.01, multilabel=multilabel)
+            if tflag is None or 3 not in tflag:
+                key = (str(dim) + 'Dim', 'SLMVP', 'Radial-Gammas=0.01')
+                pbar.set_description(str(key))
+                self.new_dim[key] = self.slmvp_model(
+                    dim, 'radial', gammas=0.01, multilabel=multilabel)
 
-            key = (str(dim) + 'Dim', 'SLMVP', 'Radial-Gammas=0.1')
-            pbar.set_description(str(key))
-            self.new_dim[key] = self.slmvp_model(
-                dim, 'radial', gammas=0.1, multilabel=multilabel)
+            if tflag is None or 4 not in tflag:
+                key = (str(dim) + 'Dim', 'SLMVP', 'Radial-Gammas=0.1')
+                pbar.set_description(str(key))
+                self.new_dim[key] = self.slmvp_model(
+                    dim, 'radial', gammas=0.1, multilabel=multilabel)
 
-            key = (str(dim) + 'Dim', 'PCA', '')
-            pbar.set_description(str(key))
-            self.new_dim[key] = self.pca_model(dim)
+            if tflag is None or 5 not in tflag:
+                key = (str(dim) + 'Dim', 'PCA', '')
+                pbar.set_description(str(key))
+                self.new_dim[key] = self.pca_model(dim)
 
-            # # No known way of getting the components
-            # key = (str(dim) + 'Dim', 'KPCA', 'Linear')
-            # pbar.set_description(str(key))
-            # self.new_dim[key] = self.kpca_model(dim, 'linear')
+            if tflag is None or 6 not in tflag:
+                # No known way of getting the components
+                key = (str(dim) + 'Dim', 'KPCA', 'Linear')
+                pbar.set_description(str(key))
+                self.new_dim[key] = self.kpca_model(dim, 'linear')
 
-            # key = (str(dim) + 'Dim', 'KPCA', 'Polynomial-Order=5')
-            # pbar.set_description(str(key))
-            # self.new_dim[key] = self.kpca_model(dim, 'poly')
+            if tflag is None or 7 not in tflag:
+                key = (str(dim) + 'Dim', 'KPCA', 'Polynomial-Order=5')
+                pbar.set_description(str(key))
+                self.new_dim[key] = self.kpca_model(dim, 'poly')
 
-            # key = (str(dim) + 'Dim', 'KPCA', 'Radial-Gamma=0.1')
-            # pbar.set_description(str(key))
-            # self.new_dim[key] = self.kpca_model(dim, 'rbf', gamma=0.1)
+            if tflag is None or 8 not in tflag:
+                key = (str(dim) + 'Dim', 'KPCA', 'Radial-Gamma=0.1')
+                pbar.set_description(str(key))
+                self.new_dim[key] = self.kpca_model(dim, 'rbf', gamma=0.1)
 
-            key = (str(dim) + 'Dim', 'KPCA', 'Radial-Gamma=' +
-                   str(round(1/len(self.X_train[0]), 3)))
-            pbar.set_description(str(key))
-            self.new_dim[key] = self.kpca_model(dim, 'rbf')
+            if tflag is None or 9 not in tflag:
+                key = (str(dim) + 'Dim', 'KPCA', 'Radial-Gamma=' +
+                       str(round(1/len(self.X_train[0]), 3)))
+                pbar.set_description(str(key))
+                self.new_dim[key] = self.kpca_model(dim, 'rbf')
 
             if multilabel is None:
-                # No known way of getting the components
-                key = (str(dim) + 'Dim', 'LOL', '')
+                if tflag is None or 10 not in tflag:
+                    # No known way of getting the components
+                    key = (str(dim) + 'Dim', 'LOL', '')
+                    pbar.set_description(str(key))
+                    self.new_dim[key] = self.lol_model(dim, n_components=dim)
+
+            if tflag is None or 11 not in tflag:
+                k = floor(sqrt(min(len(self.X_train), len(self.X_train[0]))))
+                key = (str(dim) + 'Dim', 'LPP', 'k=' + str(k))
                 pbar.set_description(str(key))
-                self.new_dim[key] = self.lol_model(dim, n_components=dim)
+                self.new_dim[key] = self.lpp_model(dim, k)
 
-            # k = floor(sqrt(min(len(self.X_train), len(self.X_train[0]))))
-            # key = (str(dim) + 'Dim', 'LPP', 'k=' + str(k))
-            # pbar.set_description(str(key))
-            # self.new_dim[key] = self.lpp_model(dim, k)
-
-            k = floor(sqrt(len(self.X_train)))
-            reg = 0.001
-            # No known way of getting the components
-            key = (str(dim) + 'Dim', 'LLE', 'k=' + str(k) + '-reg=' + str(reg))
-            pbar.set_description(str(key))
-            self.new_dim[key] = self.lle_model(dim, k, reg)
+            if tflag is None or 12 not in tflag:
+                k = floor(sqrt(len(self.X_train)))
+                reg = 0.001
+                # No known way of getting the components
+                key = (str(dim) + 'Dim', 'LLE', 'k=' +
+                       str(k) + '-reg=' + str(reg))
+                pbar.set_description(str(key))
+                self.new_dim[key] = self.lle_model(dim, k, reg)
 
         # Save the results in a csv, xls
         result_dim = pd.DataFrame()
@@ -344,6 +300,8 @@ class Dim:
 
         return df
 
+    # -------------------------- Plot Functions ------------------------------
+
     def plot_artificial(self, n_rows, n_cols, figsize=(15, 12), save_name=None):
         fig, ax = plt.subplots(
             n_rows, n_cols, figsize=figsize)
@@ -449,3 +407,66 @@ class Dim:
         if save_name is not None:
             plt.savefig(
                 '/Users/espina/Documents/TFM/tfm_code/plots/' + save_name + '.png')
+
+    # -------------------------- Comparison Functions ------------------------------
+
+    def get_weights(self):
+        """Return the eigenvalues. Calculates the variation of the data projected
+        onto the discovered dimensions as a proxy for the eigenvalues."""
+        res = pd.DataFrame()
+        for key in self.new_dim.keys():
+            # Calculate variations
+            var_dims = [np.var(self.new_dim[key][0][i])
+                        for i in range(len(self.new_dim[key][0]))]
+            por_eigenvals = [x/sum(var_dims) for x in var_dims]
+            res[key+('Var',)] = var_dims
+            res[key+('Var %',)] = por_eigenvals
+            # Calculate regression betas
+            model = LinearRegression().fit(
+                self.new_dim[key][0].T, self.y_train)
+            betas = [abs(x) for x in model.coef_]
+            r_squared = model.score(
+                self.new_dim[key][0].T, self.y_train)
+            res[key+('Beta',)] = betas
+            res[key+('Beta %',)] = [x/sum(betas) for x in betas]
+            res[key+('R^2',)] = [r_squared for x in range(len(betas))]
+
+        res.columns = pd.MultiIndex.from_tuples(
+            res.columns.to_list())
+
+        res.to_csv('/Users/espina/Documents/TFM/tfm_code/evalues/' +
+                   datetime.now().strftime('%m-%d-%H:%M') + '.csv')
+        res.to_excel('/Users/espina/Documents/TFM/tfm_code/evalues/' +
+                     datetime.now().strftime('%m-%d-%H:%M') + '.xlsx')
+
+        return res
+
+    def get_corr_table(self, num_dim=None):
+        if num_dim is None:
+            num_dim = self.num_dim
+        # Load the data into a Pandas df
+        if self.col_names is not None:
+            df = pd.DataFrame(self.X_train, columns=self.col_names[:-1])
+        else:
+            df = pd.DataFrame(self.X_train)
+        for key in tqdm(self.new_dim.keys()):
+            for i in range(num_dim):
+                df[key+(i,)] = self.new_dim[key][0][i]
+
+        # Correlations between the original data and each principal component
+        df_corr = df.corr().iloc[:len(self.X_train[0]), len(self.X_train[0]):]
+
+        # Make df multi-index
+        df_corr.columns = pd.MultiIndex.from_tuples(
+            df_corr.columns.to_list())
+
+        # Take only the abs value of the correlations
+        df_corr = df_corr.abs()
+
+        # Save result in csv
+        df_corr.to_csv('/Users/espina/Documents/TFM/tfm_code/corr/corr_' +
+                       datetime.now().strftime('%m-%d-%H:%M')+'_'+str(num_dim)+'.csv')
+        df_corr.to_excel('/Users/espina/Documents/TFM/tfm_code/corr/corr_' +
+                         datetime.now().strftime('%m-%d-%H:%M')+'_'+str(num_dim)+'.xlsx')
+
+        return df_corr

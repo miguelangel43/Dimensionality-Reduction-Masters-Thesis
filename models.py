@@ -11,9 +11,9 @@ from sklearn.svm import SVC
 from sklearn.metrics import mean_squared_error, mean_absolute_error, accuracy_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.mixture import GaussianMixture
-from sklearn.metrics import r2_score
+from sklearn.metrics import r2_score, precision_score, recall_score, f1_score, roc_curve, roc_auc_score
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import pickle
@@ -21,6 +21,8 @@ from datetime import datetime
 from math import floor, sqrt
 import pandas as pd
 import numpy as np
+from tensorflow import keras
+from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
 
 class Dim:
@@ -227,10 +229,10 @@ class Dim:
         with open('scores/' + output_path + '.pkl', 'wb') as f:
             pickle.dump(self.scores, f)
 
-    def apply_clf(self, model):
+    def apply_clf(self, models=None):
         """Run classifiers and save new scores in self.scores and in folder /scores"""
 
-        if model == 'XGBoost':
+        if models is None or 'XGBoost' in models:
             xgb_pipe = Pipeline([('mms', MinMaxScaler()),
                                 ('xgb', XGBClassifier())])
             params = [{'xgb__n_estimators': [5, 10, 20, 50, 100]}]
@@ -241,29 +243,26 @@ class Dim:
 
             for key_dim in tqdm(self.new_dim.keys(), desc='XGBoost'):
                 gs_xgb.fit(self.new_dim[key_dim][0].T, self.y_train)
-                self.scores[key_dim] = [
-                    gs_xgb.score(self.new_dim[key_dim][1].T, self.y_test),
-                    gs_xgb.best_params_
-                ]
+                self.scores[('XGBoost', *key_dim)] = ['XGBoost',
+                                                      gs_xgb.score(
+                                                          self.new_dim[key_dim][1].T, self.y_test),
+                                                      gs_xgb.best_params_
+                                                      ]
 
-            # Pickle all the scores
-            self.pickle_scores(datetime.now().strftime('%m-%d-%H:%M'))
-
-        elif model == 'Linear Regression':
+        if models is None or 'Linear Regression' in models:
             reg_pipe = Pipeline([('mms', MinMaxScaler()),
-                                ('reg', LinearRegression())])
+                                 ('reg', LinearRegression())])
 
             for key_dim in tqdm(self.new_dim.keys(), desc='Linear Reg.'):
                 reg_pipe.fit(self.new_dim[key_dim][0].T, self.y_train)
-                self.scores[key_dim] = [
-                    reg_pipe.score(self.new_dim[key_dim][1].T, self.y_test),
-                    ''
-                ]
 
-            # Pickle all the scores
-            self.pickle_scores(datetime.now().strftime('%m-%d-%H:%M'))
+                self.scores[('Linear Regression', *key_dim)] = ['Linear Regression',
+                                                                reg_pipe.score(
+                                                                    self.new_dim[key_dim][1].T, self.y_test),
+                                                                ''
+                                                                ]
 
-        elif model == 'KNN':
+        if models is None or 'KNN' in models:
             knn_pipe = Pipeline([('mms', MinMaxScaler()),
                                 ('knn', KNeighborsClassifier())])
             params = [{'knn__n_neighbors': [3, 5, 10, 20, 50, 100]}]
@@ -274,29 +273,82 @@ class Dim:
 
             for key_dim in tqdm(self.new_dim.keys(), desc='KNN'):
                 gs_knn.fit(self.new_dim[key_dim][0].T, self.y_train)
-                self.scores[key_dim] = [
-                    gs_knn.score(self.new_dim[key_dim][1].T, self.y_test),
-                    gs_knn.best_params_
-                ]
+                # Make predictions on the test set
+                y_pred = gs_knn.predict(self.new_dim[key_dim][1].T)
+                # Calculate accuracy
+                accuracy = accuracy_score(self.y_test, y_pred)
+                self.scores[('KNN', *key_dim)] = ['KNN',
+                                                  accuracy,
+                                                  gs_knn.best_params_
+                                                  ]
 
-            # Pickle all the scores
-            self.pickle_scores(datetime.now().strftime('%m-%d-%H:%M'))
+        if models is None or 'SVM' in models:
+            svm_pipe = Pipeline([('mms', MinMaxScaler()),
+                                 ('svm', SVC())])
+            params = [{'svm__C': [0.1, 1, 10, 100],
+                       'svm__kernel': ['linear', 'rbf', 'polynomial']}]
+            gs_svm = GridSearchCV(svm_pipe,
+                                  param_grid=params,
+                                  scoring='accuracy',
+                                  cv=5)
+
+            for key_dim in tqdm(self.new_dim.keys(), desc='SVM'):
+                gs_svm.fit(self.new_dim[key_dim][0].T, self.y_train)
+                # Make predictions on the test set
+                y_pred = gs_svm.predict(self.new_dim[key_dim][1].T)
+                # Calculate accuracy
+                accuracy = accuracy_score(self.y_test, y_pred)
+                self.scores[('SVM', *key_dim)] = ['SVM',
+                                                  accuracy,
+                                                  gs_svm.best_params_
+                                                  ]
+        # if models is None or 'ANN' in models:
+        #     for key_dim in tqdm(self.new_dim.keys(), desc='ANN'):
+        #         # Define the neural network model
+        #         model = keras.Sequential([
+        #             keras.layers.Dense(16, activation='relu',
+        #                                input_shape=(int(key_dim[0][:-3]),)),
+        #             keras.layers.Dense(16, activation='relu'),
+        #             keras.layers.Dense(1, activation='sigmoid')
+        #         ])
+        #         # Compile the model
+        #         model.compile(optimizer='adam',
+        #                       loss='binary_crossentropy', metrics=['accuracy'])
+        #         input_data = self.new_dim[key_dim][0].reshape(900, -1)
+        #         model.fit(input_data, self.y_train,
+        #                   epochs=10, batch_size=32, verbose=0)
+        #         y_pred = model.predict(self.new_dim[key_dim][1].T)
+        #         y_pred = (y_pred > 0.5).astype(int)
+
+        #         # Calculate the accuracy
+        #         accuracy = accuracy_score(self.y_test, y_pred)
+        #         self.scores[('ANN', *key_dim)] = ['ANN',
+        #                                           accuracy,
+        #                                           ''
+        #                                           ]
+
+        # Pickle all the scores
+        self.pickle_scores(datetime.now().strftime('%m-%d-%H:%M'))
 
         df = pd.DataFrame.from_dict(self.scores, orient='index', columns=[
-                                    'Best Score', 'Params']).reset_index()
-        df[['Dimensions', 'Dim. Technique', 'Dim. Params']] = pd.DataFrame(
+                                    'Model', 'Best Score', 'Params']).reset_index()
+        df[['Model', 'Dimensions', 'Dim. Technique', 'Dim. Params']] = pd.DataFrame(
             df['index'].tolist(), index=df.index)
 
         df = df.drop('index', axis=1)
 
         df = df.sort_values('Best Score', ascending=False)
 
+        file_name = datetime.now().strftime('%m-%d-%H:%M')
+
         df.to_csv('/Users/espina/Documents/TFM/tfm_code/scores/' +
-                  datetime.now().strftime('%m-%d-%H:%M') + '.csv')
-        df.to_excel('/Users/espina/Documents/TFM/tfm_code/scores/' +
-                    datetime.now().strftime('%m-%d-%H:%M') + '.xlsx')
+                  file_name + '.csv')
+        df.to_excel(
+            '/Users/espina/Documents/TFM/tfm_code/scores/' + file_name + '.xlsx')
 
         # df = df.groupby('Dim. Technique', as_index=False).first()
+
+        print('saved as ' + file_name + '(.csv)(.xlsx)')
 
         return df
 

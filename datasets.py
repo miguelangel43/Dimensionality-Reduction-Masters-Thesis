@@ -50,7 +50,9 @@ class orl:
 
 
 class fifa:
-    """https://www.kaggle.com/datasets/bryanb/fifa-player-stats-database"""
+    """https://www.kaggle.com/datasets/stefanoleone992/fifa-22-complete-player-dataset
+
+    Scraped from https://sofifa.com/"""
 
     def __init__(self):
         self.X = None

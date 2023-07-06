@@ -10,15 +10,20 @@
 
 % 3. Spearman Rank correlation between techniques
 
+\section{Experimental Setup}
 
-\section{Datasets}
+\subsection{Datasets}
 This section introduces the datasets utilized in this master's thesis. The aim is to provide a comprehensive overview of the datasets, including their sources, characteristics, and any preprocessing steps applied.
 
-\subsection{Artificial Dataset}\label{section:artificial-dataset}
+\subsubsection{Artificial Dataset}\label{section:artificial-dataset}
 
+\subsubsection{FIFA}\label{section:fifa-dataset}
+The FIFA dataset encompasses data from various editions of the popular FIFA video game series, which serves as a reliable source of player information. The dataset contains detailed attributes for each player, including playing positions, skill ratings (such as dribbling, shooting, and passing), and performance statistics (such as goals, assists, and appearances).
 
-\subsection{Our Database of Faces (ORL) Dataset}\label{section:orl-dataset}
-This dataset was created at the AT\&T Laboratories in Cambridge, UK, in the context of a face recognition project the laboratory was doing with the Speech, Vision and Robotics Group of the Cambridge University Engineering Department. It contains face images taken between April 1992 and April 1994, 10 images of 40 different subjects, a total of 400 images. It consists of grayscale images of 40 individuals, with 10 images per person. The dataset was collected under controlled conditions, with variations in facial expression, lighting conditions, and facial details.
+Furthermore, it includes the estimated market value of each player, which has often been used as the dependent variable in a regression or classification task.
+
+\subsubsection{Our Database of Faces (ORL) Dataset}\label{section:orl-dataset}
+This dataset \cite{orl_dataset} was created at the AT\&T Laboratories in Cambridge, UK, in the context of a face recognition project the laboratory was doing with the Speech, Vision and Robotics Group of the Cambridge University Engineering Department. It contains face images taken between April 1992 and April 1994, 10 images of 40 different subjects, a total of 400 images. It consists of grayscale images of 40 individuals, with 10 images per person. The dataset was collected under controlled conditions, with variations in facial expression, lighting conditions, and facial details.
 
 Each image in the ORL dataset has a resolution of 92 pixels by 112 pixels. The images were captured under different poses, including variations in head rotation and tilt, providing a diverse set of facial orientations. The ORL dataset offers a realistic representation of face images encountered in real-world scenarios, making it a suitable choice for evaluating the performance of face recognition algorithms. The dataset has been extensively used for training and testing various dimensionality reduction techniques.
 
@@ -29,22 +34,18 @@ Each image in the ORL dataset has a resolution of 92 pixels by 112 pixels. The i
     \label{fig:orl_faces}
 \end{figure}
 
-\subsection{COIL2000}\label{section:coil-dataset}
+\subsubsection{COIL2000}\label{section:coil-dataset}
 This dataset used in the CoIL 2000 Challenge contains information on customers of an insurance company. The data consists of 86 variables and includes product usage data and socio-demographic data. The data was supplied by the Dutch data mining company Sentient Machine Research and is based on a real world business problem. The training set contains over 5000 descriptions of customers, including the information of whether or not they have a caravan insurance policy. A test set contains 4000 customers of whom only the organizers know if they have a caravan insurance policy.
 
 The dataset had class imbalance, as a large majority of customers have zero claims, only 348 customers had a claim. Sklearn's \textit{RandomOverSampler} was used to balance it.
 %\cite{van2004bias}
-
-\subsection{FIFA}\label{section:fifa-dataset}
-The FIFA dataset encompasses data from various editions of the popular FIFA video game series, which serves as a reliable source of player information. The dataset contains detailed attributes for each player, including playing positions, skill ratings (such as dribbling, shooting, and passing), and performance statistics (such as goals, assists, and appearances).
-
-Furthermore, it includes the estimated market value of each player, which has often been used as the dependent variable in a regression or classification task.
 
 \section{Spearman's Rank Correlation Coefficient} \label{section:spearman}
 Spearman's rank correlation coefficient is a nonparametric measure of rank correlation. It measures the statistical dependence between the rankings of two variables. It is defined as the Pearson correlation coefficient between the rank variables. For variables $X$, $Y$ converted to ranks $R(X)$, $R(Y)$. The Spearman rank correlation coefficient is calculated in the following way.
 \begin{equation}
     r_s = \rho_{R(X), R(Y)} = \frac{cov(R(X),R(Y))}{\sigma_{R(X)} \sigma_{R(Y)}}
 \end{equation}
+
 
 \section{Interpretation of Components}
 

@@ -11,6 +11,7 @@ This sections shows the results of the evaluation of the dimensionality reductio
 In this section, the performance of various dimensionality reduction techniques is evaluated and compared on an artificially generated dataset. The aim is to identify the techniques that provide the best results in reducing the dimensionality of the dataset.
 Table \ref{tab:artificial-dataset} presents the results obtained from evaluating different dimensionality reduction techniques. Each technique is assessed based on accuracy. The techniques are ranked in descending order of overall performance.
 
+% Classification Table
 \begin{table}
     \begin{tabular}{llllr}
         \toprule
@@ -81,7 +82,7 @@ By examining the scatter plots obtained from the different dimensionality reduct
     \item SLMVP with a radial kernel captures the classes in a curve, which can be clearly seen in its 3-dimensional representation (Figure \ref{fig:artificial_3d}).
 \end{itemize}
 
-% Spearman's Rank Correlation - Heatmap
+% Heatmap
 \begin{center}
     \begin{figure}
         \centering
@@ -92,21 +93,7 @@ By examining the scatter plots obtained from the different dimensionality reduct
 \end{center}
 
 The heatmap in Figure \ref{fig:heatmap-artificial} visually represents the similarity and dissimilarity between different dimensionality reduction techniques based on their Spearman rank correlation coefficients. The correlation coefficients are calculated by measuring the absolute correlations between the data in the reduced space from each technique and the original data. Higher correlation coefficients indicate a stronger resemblance between the reduced-dimensional representations obtained using 2 dimensionality reduction techniques.
-
 The color and the color intensity in the heatmap represent the magnitude of the correlation coefficients. Darker red shades indicate higher correlation coefficients, indicating a stronger resemblance between the reduced-dimensional representations. Darker blue shades, on the other hand, suggest weaker correlations.
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.6\textwidth]{artificial_slmvp_linear.png}
-    \caption{}
-    \label{fig:artificial_slmvp_linear}
-\end{figure}
-
-
-%rewrite
-% Each dot in this plot represents one community. Looking at the red dot out by itself to the right, you may conclude that this particular dot has a very high value for the first principal component and we would expect this community to have high values for the Arts, Health, Housing, Transportation, and Recreation. Whereas if you look at the red dot at the left of the spectrum, you would expect to have low values for each of those variables.
-
-% The top dot in blue has a high value for the second component. We would not expect this community to have the best Health Care. And conversely, if you were to look at the blue dot on the bottom, the corresponding community would have high values for Health Care.
 
 % Multilabel
 \begin{figure}
@@ -158,6 +145,7 @@ In this section, we assess and compare different techniques for reducing the dim
     \label{fig:fifa_line_chart}
 \end{figure}
 
+
 \subsection{Visualization}
 
 % 2D Visualization
@@ -168,7 +156,15 @@ In this section, we assess and compare different techniques for reducing the dim
     \label{fig:fifa_2d}
 \end{figure}
 
+% Heatmap
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{heatmap_fifa.png}[!h]
+    \caption{Heatmap of Spearman Rank Correlation Coefficients}
+    \label{fig:heatmap-fifa}
+\end{figure}
 
+% Spider
 \begin{figure}[!h]
     \centering
     \includegraphics[width=\textwidth]{spider_fifa.png}
@@ -263,6 +259,15 @@ In this section, we conduct an evaluation and comparison of various techniques a
     \label{fig:coil-3d}
 \end{figure}
 
+% Heatmap
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{heatmap_coil.png}[!h]
+    \caption{Heatmap of Spearman Rank Correlation Coefficients}
+    \label{fig:heatmap-coil}
+\end{figure}
+
+
 \section{ORL Dataset}
 
 \subsection{Classification Results}
@@ -305,11 +310,28 @@ In this section, we conduct an evaluation and comparison of various techniques a
 
 \subsection{Visualization}
 
+% 2D Visualization
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=1\textwidth]{orl1.png}
+    \includegraphics[width=1\textwidth]{orl_2d.png}
     \caption{Visualization of the clusters projected into 2 dimensions that resulted from the application of the different dimensionality reduction techniques on the ORL dataset.}
-    \label{fig:orl}
+    \label{fig:orl-2d}
+\end{figure}
+
+% 3D Visualization
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{orl_3d.png}
+    \caption{Visualization of the clusters projected into 3 dimensions that resulted from the application of the different dimensionality reduction techniques on the ORL dataset.}
+    \label{fig:orl-3d}
+\end{figure}
+
+% Heatmap
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{heatmap_orl.png}[!h]
+    \caption{Heatmap of Spearman Rank Correlation Coefficients}
+    \label{fig:heatmap-orl}
 \end{figure}
 
 % https://online.stat.psu.edu/stat505/lesson/11/11.4

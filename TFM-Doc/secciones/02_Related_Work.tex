@@ -178,3 +178,39 @@ where $K_X = \mathscr{S}_X(X)$ and $K_Y \mathscr{S}_Y(Y)$ are the input and outp
 where $B$ is the new reduced space.
 
 \section{Explainable Artificial Intelligence}
+
+As machine learning models, such as neural networks, become more sophisticated, they often operate as black boxes, making complex computations and generating results without transparently revealing the underlying processes to human users. This lack of explainability poses significant concerns in several domains. For instance, in healthcare, where AI is increasingly utilized for medical diagnoses or treatment recommendations, doctors and patients need to understand the rationale behind AI-driven decisions to ensure trust and accountability.
+% Goals of XAI
+Explainable Artificial Intelligence (XAI) aims at understanding machine learning model predictions and explain them in human and understandable terms to build trust with stakeholders.
+% Interpretability vs Explainability
+Interpretability focuses on model understanding techniques, while explainability focuses more broadly on model explanation and the interface for translating these explanations in human, understandable terms.
+
+More complex models are difficult to debug, understand and control, thereby impeding their adoption.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{ai_dog.jpg}
+    \caption{Example of explainable artificial intelligence in image recognition. It shows which regions contributed to the model's prediction of this image as a husky \url{https://cloud.google.com/blog/products/ai-machine-learning/explaining-model-predictions-on-image-data}}
+    \label{fig:ai_dog}
+\end{figure}
+
+% rewrite
+The field of Explainable Artificial Intelligence (XAI) is continuously evolving, and several state-of-the-art techniques have been developed to enhance the explainability of AI models. Here are a few notable advancements:
+
+Interpretable Machine Learning: Techniques such as decision trees, rule-based models (e.g., rule lists, logical rules), and linear models provide inherent interpretability. They are widely used and have been enhanced to handle complex tasks and larger datasets.
+
+Local Interpretable Model-Agnostic Explanations (LIME): LIME is a model-agnostic method that explains the predictions of any black-box model by creating a surrogate interpretable model. It perturbs the input data and observes the effect on the model's output, generating explanations for specific instances.
+
+SHAP (SHapley Additive exPlanations): SHAP values are based on cooperative game theory and aim to allocate the "credit" or contribution of each feature in a prediction. SHAP provides a unified framework for interpreting the output of a wide range of models, including deep neural networks.
+
+Integrated Gradients: This method assigns importance scores to input features by integrating gradients along a path from a baseline input to the input of interest. It quantifies how each feature contributes to the prediction and has been applied to explain deep learning models.
+
+Attention Mechanisms: Attention mechanisms, commonly used in natural language processing and computer vision, allow models to focus on specific parts of the input. Attention weights provide insights into the model's decision-making process and highlight important regions or words.
+
+Counterfactual Explanations: Counterfactual explanations generate alternative scenarios that could have led to a different outcome. They provide a "what-if" analysis and can be useful for explaining individual predictions or decisions.
+
+Concept-based Explanations: These approaches aim to explain AI models in terms of human-understandable concepts or high-level features. They provide explanations at a more abstract level, enabling users to grasp the reasoning behind a model's output.
+
+Model-specific Techniques: Some AI models have built-in explainability mechanisms. For example, decision trees can naturally provide interpretable explanations, and Bayesian networks can represent probabilistic relationships and support causal reasoning.
+
+It's important to note that the effectiveness of these techniques may vary depending on the application domain, the specific AI model used, and the requirements of the end-users. The field of XAI is still rapidly evolving, and researchers are continuously working on developing more sophisticated and reliable methods to enhance the transparency and interpretability of AI systems.

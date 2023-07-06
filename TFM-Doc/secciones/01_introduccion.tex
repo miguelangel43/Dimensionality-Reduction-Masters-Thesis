@@ -1,5 +1,11 @@
 \chapter{Introduction}
 
+% TODO
+% - Llevar el paragrafo 2 al final de la introducción.
+% - Explicar que dimensionality reduction es el primer paso de una pipeline de machine learning
+% - Mencionar B2, B4 de Jollife
+%
+
 As the availability of data continues to grow exponentially, the need for efficient and effective methods to reduce dimensionality and extract relevant information becomes more important.
 % Feature Selection & Feature Extraction
 Feature selection and feature extraction are two commonly used techniques in machine learning to reduce the dimensionality of a dataset. These techniques aim at identifying the most relevant features from the original set of input variables.
@@ -16,6 +22,10 @@ Supervised learning consists on training a model on labeled data, where the inpu
 Local dimensionality reduction techniques focus on preserving the local structure and relationships among data points in the reduced feature space. They aim to maintain the similarities and dissimilarities among neighboring data points. LLE, LPP and SLMVP have this property, however SLMVP is the only dimensionality reduction technique that is both local and supervised.
 
 % Introduce Explainability and connect it to the aim of this thesis
+% TODO
+
+% Introduction of objectives
+% TODO
 
 % List the objectives of the thesis
 \begin{enumerate}
@@ -27,200 +37,10 @@ Local dimensionality reduction techniques focus on preserving the local structur
 \end{enumerate}
 
 % List the main sections the thesis is organized into. With a very brief summary.
+% TODO
+
 \begin{enumerate}
     \item Introduction.
     \item Methodology: the experiments are described.
           \subitem Datasets: the datasets (ORL, COIL2000) are introduced.
 \end{enumerate}
-
-\section{Dimensionality Reduction}
-Due to the massive technological advancements in processing power and data storage that have happened in the last few decades, data has grown exponentially in all areas of society. This abundance of data has introduced many challenges, including the curse of dimensionality. The curse of dimensionality refers to the many challenges that arise when working with high dimensional data. Some of those are: increased computational complexity, reduced interpretability, and the risk of overfitting.
-
-Dimensionality reduction techniques have emerged as essential tools to address these issues by transforming high-dimensional data into a lower-dimensional space while preserving variability. Moreover, they facilitate the interpretation of high-dimensional datasets by identifying the key features that contribute most to the variability in the data.
-This thesis provides an in-depth exploration of many of the most relevant dimensionality reduction techniques (PCA, KPCA, LOL, LPP, LLE and SLMVP).
-%\cite{verleysen2005curse}
-
-\subsection{Principal Component Analysis (PCA)}
-%\cite{pearson1901principal}
-
-% Introduction
-Principal Component Analysis (PCA) is arguably the most popular and widely used dimensionality reduction technique. It aims at extracting the components that maximize the variance of the data in a lower dimensional space. Introduced by Karl Pearson in 1901, PCA has since been extensively applied in various fields, including signal processing and image processing. It has also been often used in the medical field, where patients datasets usually have a small sample size and a great number of features.
-
-% How it works
-PCA operates by identifying the principal components, which are orthogonal linear combinations of the original variables. These components capture the maximum variance in the data and are ordered in terms of their significance. The first principal component accounts for the largest proportion of the variance, followed by the subsequent components in descending order.
-
-Mathematically, let $X$ be an $n \times m$ matrix, where each row represents a sample and each column corresponds to a feature. The first step in PCA is to calculate the covariance matrix $C$, which is computed as $C = \frac{X^T X}{N}$, capturing the relationships between different features.
-
-% cite eigenvalue problem
-Next, the eigenvectors and eigenvalues of the covariance matrix are calculated. Denoting the eigenvectors as $V$ and the eigenvalues as $\lambda$, we have $C V = \lambda V$. The eigenvectors $V$ represent the directions in the feature space along which the data exhibits the most significant variability, while the corresponding eigenvalues $\lambda$ indicate the amount of variance explained by each eigenvector.
-
-To reduce the dimensionality of the data, a subset of the eigenvectors corresponding to the largest eigenvalues is selected. These eigenvectors form a new basis for the transformed data. The original dataset is then projected onto this reduced basis, resulting in a lower-dimensional representation, $P = V' X$, where $V'$ contains the selected eigenvectors.
-
-% cite ISOMAP, LLP, Laplacian Eigenmaps and Locally Linear Embeddings
-% Limitations
-Despite its widespread use, PCA has certain limitations. It assumes a linear relationship between variables, and therefore struggles with cases in which the data clusters cannot be linearly separated. Moreover, it performs a global analysis on the whole dataset and does not preserve the local structure.
-Extensions of PCA, such as kernel PCA, have been proposed to handle nonlinear relationships in the data. Other methods based on local structure preservation, such as ISOMAP, LLP, Laplacian Eigenmaps and Locally Linear Embeddings have been proposed to overcome the global characteristics of PCA.
-
-
-\subsection{Kernel Principal Component Analysis (KPCA)}
-%\cite{scholkopf1998nonlinear}
-% Introduction
-Kernel Principal Component Analysis (KPCA) is an extension of Principal Component Analysis (PCA) that addresses the limitations of linear methods by introducing a nonlinear mapping of the data into a higher-dimensional feature space. KPCA, proposed by Bernhard Schölkopf, Alexander Smola, and Klaus-Robert Müller in 1998, has since gained significant popularity in various domains, including computer vision, bioinformatics, and signal processing.
-
-% How it works
-KPCA aims to find a low-dimensional representation of the data while capturing the nonlinear structures and relationships present in the dataset. It achieves this by taking advantage of the kernel trick. The kernel trick involves defining a kernel function $K(x_i, x_j)$ that measures the similarity between two data points $x_i$ and $x_j$. Commonly used kernel functions include the Gaussian (RBF) kernel, polynomial kernel, and sigmoid kernel. By employing the kernel function, KPCA implicitly maps the data into a higher-dimensional feature space, which has the disadvantage that it increases the computational cost.
-
-% PPT
-Let $\phi : \mathbb{R}^N \rightarrow F$ be a (nonlinear) map. We refer to $F$ as the feature space. The covariance matrix is then
-\begin{equation}
-    C = \frac{\phi(X)^T \phi(X)}{N}
-\end{equation}
-
-Similar to PCA, the eigenvectors and eigenvalues of the covariance matrix are calculated. Denoting the eigenvectors as $V$ and the eigenvalues as $\lambda$, we have $C V = \lambda V$. The eigenvectors $V$.
-
-To obtain the reduced-dimensional representation, a subset of the eigenvectors corresponding to the largest eigenvalues is selected. These eigenvectors, referred to as kernel principal components, define the transformed space in which the data is projected. The original dataset can then be mapped onto this space to obtain the lower-dimensional representation $P = V' \phi(X)$.
-
-% Advantages over PCA, and limitations
-KPCA offers several advantages over linear PCA. It can effectively capture nonlinear patterns and structures in the data, enabling a more accurate representation of complex relationships.
-However, KPCA also comes with certain considerations. The choice of the kernel function and its associated parameters significantly impact the performance. Moreover, the computation of the kernel matrix can be computationally demanding because of the mapping to a higher-dimensional feature space.
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.5\textwidth]{kernel_pca.png}
-    \caption{Representation of the mapping function used in KPCA. \url{https://pdfs.semanticscholar.org/3f60/0e6c6cf93e78c9e6e690443d6d22c4bf18b9.pdf}}
-    \label{fig:kernel_pca}
-\end{figure}
-
-\subsection{Linear Optimal Low-Rank (LOL)}
-%\cite{doe2010linear}
-
-Linear Optimal Low-Rank (LOL) is a dimensionality reduction technique that extends PCA by incorporating class-conditional means. This approach outperforms existing dimensionality reduction techniques and has demonstrated effectiveness with imaging and genetics data. LOL and SLMVP represent few of the supervised techniques that have been developed.
-
-LOL was developed with the objective of enhancing the performance and accuracy of LDA, especially when the input data has a very large number of features (e.g. hundreds of millions), and a small sample size. This is known as the "large $p$, small $n$" problem, and it negatively affects the performance of classifiers, often making them overfit.
-
-Mathematically, let $A \in \mathbb{R}^{d \times p}$ be a projection matrix i.e., the matrix that projects $p$-dimensional data into a $d$-dimensional subspace. We want to find the best projection matrix to pre-process the data before applying LDA. LOL suggests a matrix $A_{LOL}$ that is built by considering the eigenvectors of the class-conditionally centered covariance.
-
-The fist step is to compute the sample mean of each class. They are ordered from highest to lowest, and then the differences of the means are calculated. For two classes: $\delta = \mu_0 - \mu_1$. For more than two classes: $\delta_i = \mu_i - \mu_1$ where $i \in {2,...,C}$ and $C$ is the number of classes. The class-centered covariance matrix is then calculated and the eigenvectors computed.
-
-LOL offers several advantages over other dimensionality reduction techniques, its focus on improving classification accuracy when paired with a machine learning algorithm make it one of the best performing in that area.
-
-\subsection{Locality Preserving Projection (LPP)}
-% \cite
-% He, Xiaofei, and Partha Niyogi. "Locality preserving projections." Advances in neural information processing systems 16 (2003).
-
-Locality Preserving Projection (LPP) is a dimensionality reduction technique that aims to preserve the local structure and relationships among data points in a lower-dimensional space. LPP. In was introduced by Xiaofei He and Partha Niyogi in 2003.
-
-It builds a graph incorporating neighborhood information
-of the data set, that we will refer to as similarity matrix $W$ . Using the notion of the Laplacian of the graph, a transformation matrix which maps the data points to a subspace is computed. This linear transformation optimally preserves local neighborhood information.
-
-Mathematically, let $\mathbf{X}$ be an $n \times m$ data matrix, where each row corresponds to a sample and each column represents a feature. LPP involves two key steps: constructing an similarity matrix $W$ and solving a generalized eigenvalue problem.
-
-The first step is to construct a similarity matrix $W$ that encodes the pairwise similarities between data points. Commonly used similarity measures include the Gaussian kernel, k-nearest neighbors, or graph-based techniques. The matrix $W$ captures the local relationships and can be interpreted as a weighted adjacency matrix of a graph, where each data point is connected to its neighbors.
-
-Given $W$, the goal is to find a projection matrix $\mathbf{P}$ that maps the data points into a lower-dimensional space. This is achieved by solving the generalized eigenvalue problem:
-
-\begin{equation} \label{eq:1}
-    X \mathbf{L} X^T a = \lambda XDX^Ta,
-\end{equation}
-
-where $\mathbf{L} = D-W$ is the Laplacian matrix. The matrix $\mathbf{P}$ consists of the eigenvectors corresponding to the smallest eigenvalues of equation \ref{eq:1}, representing the lower-dimensional representation of the data.
-
-LPP offers several advantages over traditional dimensionality reduction techniques. It yields a map which is simple, linear, and defined everywhere. Furthermore, the algorithm can be easily kernelized and be made nonlinear.
-
-However, LPP also has some considerations. The choice of the parameters when computing the similarity matrix (e.g. the number of neighbors $k$ if k-neares neighbors is used) can significantly change the result of applying LPP.
-
-\subsection{LLE} %rewrite
-% \cite{roweis2000nonlinear}
-Locally Linear Embedding (LLE) is a powerful nonlinear dimensionality reduction technique that aims to preserve the local structure of the data in a lower-dimensional space. LLE, introduced by Sam T. Roweis and Lawrence K. Saul in 2000, has gained significant attention in various fields, including computer vision, data visualization, and manifold learning.
-
-LLE addresses the limitations of linear projection methods by assuming that the data lies on a low-dimensional manifold that can be "unfolded". It seeks to find a representation of the data in a lower-dimensional space while preserving the local relationships between neighboring data points. By doing so, LLE is capable of capturing the underlying nonlinear structure of the data.
-
-Mathematically, let $X$ be an $n \times m$ data matrix, where each row corresponds to a sample and each column represents a feature. LLE involves three key steps: local reconstruction, weight determination, and global embedding.
-
-The first step is local reconstruction, where for each data point $x_i$, the neighboring data points are identified. The goal is to reconstruct $x_i$ as a linear combination of its neighbors. This can be achieved by using an algorithm, such as the K-nearest neighbors.
-
-The weight determination step involves solving the optimization problem to find the optimal weights. This can be done by minimizing the residual sum of squares.
-\begin{equation}
-    RSS(W) = \sum^n_{i=1} |X_i - \sum_{j \neq i} w_{ij} X_j|^2
-\end{equation}
-It holds $\sum_j W_{ij} = 1$, and $W_{ij} = 0$ if $X_j$ is not part of the neighborhood of $X_i$.
-
-Finally, the global embedding step aims to find the low-dimensional representation of the data. This is achieved by, once again, minimizing the residual sum of squares but using the new weights to find the low-dimensional representation of the data points $Y$.
-\begin{equation}
-    \Phi(Y) = \sum^n_{i=1} |y_i - \sum_{j\neq i}w_{ij}Y_j|^2,
-\end{equation}
-where $\sum_i Y_{ij} = 0$, so that the data points are centered on the origin and subject to $Y Y^T = I$
-
-The previous equation can me rewritten in its matrix multiplication form as
-\begin{multline}
-    \sum^n_{i=1} |y_i - \sum_{j \neq i} w_{ij} Y_j |^2 = \sum_i y_i^2 - y_i (\sum_j w_{ij}y_j) - (\sum_j w_{ij}y_j)y_i + (\sum_j w_{ij}y_j)^2 \\
-    = Y^T T - Y^T (WY) - (WY)^T Y + (WY)^T (WY) \\
-    = Y^T (I - W)^T (I-W)Y \\
-    = Y^T M Y, \\
-\end{multline}
-and after applying Lagrange multipliers, the minimization obtained by solving the following eigenvalue problem.
-\begin{equation} \label{eq:2}
-    MY = \alpha Y
-\end{equation}
-The projection matrix $\mathbf{P}$ consists of the eigenvectors corresponding to the smallest eigenvalues of equation \ref{eq:2}, representing the lower-dimensional representation of the data.
-
-LLE offers several advantages over linear projection methods. By preserving the local relationships, LLE can effectively capture the nonlinear structure of the data. It allows for the reduction of dimensionality while retaining the intrinsic properties and relationships of the data, enabling improved analysis and visualization.
-
-However, LLE also has some considerations. The choice of the number of neighbors and the neighborhood size significantly impact the performance of LLE.
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.7\textwidth]{lle_manifold.png}
-    \caption{Illustration of the problem of nonlinear dimensionality reduction.}
-    \label{fig:lle_manifold}
-\end{figure}
-
-\subsection{SLMVP}
-Supervised Local Variance Maximum Preserving (SLMVP) is a dimensionality reduction technique that aims to
-
-
-\section{Spearman's Rank Correlation Coefficient}
-Spearman's rank correlation coefficient is a nonparametric measure of rank correlation. It measures the statistical dependence between the rankings of two variables. It is defined as the Pearson correlation coefficient between the rank variables. For variables $X$, $Y$ converted to ranks $R(X)$, $R(Y)$. The Spearman rank correlation coefficient is calculated in the following way.
-\begin{equation}
-    r_s = \rho_{R(X), R(Y)} = \frac{cov(R(X),R(Y))}{\sigma_{R(X)} \sigma_{R(Y)}}
-\end{equation}
-
-%alternatively: rewrite
-
-%\cite{spearman1904proof}
-
-% Spearman's Rank Correlation Coefficient is a statistical measure used to assess the strength and direction of the monotonic relationship between two variables. Introduced by Charles Spearman in 1904, it has become a widely adopted method in various fields, including psychology, sociology, and economics.
-
-% Given two variables $X$ and $Y$, each consisting of $n$ paired observations, Spearman's rank correlation coefficient, denoted as $\rho$, is computed based on the ranks of the observations rather than their actual values. The rank transformation allows for the assessment of the relationship between variables without assuming any specific functional form.
-
-% The first step in calculating Spearman's rank correlation coefficient is to assign ranks to the observations of both variables. In case of ties, the average rank is assigned to the tied observations. Let $R(X)$ and $R(Y)$ represent the ranks of the observations for variables $X$ and $Y$, respectively.
-
-% The next step involves computing the differences between the paired ranks, denoted as $d_i = R(X)_i - R(Y)_i$ for $i=1$ to $n$. These differences capture the relative ordering of the observations.
-
-% Spearman's rank correlation coefficient is then calculated using the formula:
-
-% \begin{equation}
-%     \rho = 1 - \frac{6 \sum_{i=1}^n d_i^2}{n(n^2-1)},
-% \end{equation}
-
-% where $\sum_{i=1}^n d_i^2$ represents the sum of squared differences between ranks and $n(n^2-1)$ is a normalization factor.
-
-
-% 1. Introduction
-% Introduction of all the dimensionality reduction techniques, leading to the introduction
-% of SLMVP and its unique characteristics (e.g.: supervised, local) [SLMVP Paper Chapter 2]
-
-% SLMVP solves the problem of LPP to work on problems with "large p small m"
-
-% 2. Methodology
-
-% Apply different dimensionality reduction techniques
-% Get classification results
-% Show with artificial data under what conditions SLMVP is better
-%   than other techniques.
-
-% Get correlation tables between original features and new dimensions.
-% () Get eigenvalues
-%%---------------------------------------------------------
-
-% Maybe some background on using kernels?

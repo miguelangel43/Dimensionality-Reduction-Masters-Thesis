@@ -1,0 +1,315 @@
+
+\chapter{Results and conclusions}
+
+Dimensionality reduction techniques prove particularly valuable when confronted with datasets with a high number of features. However, it is very challenging to explain and interpret components that are based on a multitude of features. Here, as in many areas of machine learning, there exists a trade-off between complexity and explainability. We try to navigate this trade-off by grouping features into categories when the datasets permits, as it happens in Section \ref{section:fifa}.
+
+This sections shows the results of the evaluation of the dimensionality reduction techniques based on their performance in a classifying task, and proceeds to visually show and explain the components of the discovered subspaces by the best-performing techniques.
+
+\section{Artificial Dataset}
+
+\subsection{Classification Results}
+In this section, the performance of various dimensionality reduction techniques is evaluated and compared on an artificially generated dataset. The aim is to identify the techniques that provide the best results in reducing the dimensionality of the dataset.
+Table \ref{tab:artificial-dataset} presents the results obtained from evaluating different dimensionality reduction techniques. Each technique is assessed based on accuracy. The techniques are ranked in descending order of overall performance.
+
+\begin{table}
+    \begin{tabular}{llllr}
+        \toprule
+        {}                                      & Dim. Technique & Dim. Params        & Model         & Best Score \\
+        Dimensions                              &                &                    &               &            \\
+        \midrule
+                                                & LLE            & k=30-reg=0.001     & XGBoost       & 0.90       \\
+                                                & KPCA           & Linear             & XGBoost       & 0.63       \\
+        \multirow{-3}{*}{1}                     & PCA            &                    & KNN           & 0.57       \\
+        \rowcolor{lightgray}                    & SLMVP          & Linear             & LDA           & 0.96       \\
+        \rowcolor{lightgray}                    & PCA            &                    & Random Forest & 0.96       \\
+        \rowcolor{lightgray}\multirow{-3}{*}{2} & KPCA           & Linear             & KNN           & 0.96       \\
+                                                & SLMVP          & Linear             & LDA           & 1.00       \\
+                                                & LLE            & k=30-reg=0.001     & LDA           & 1.00       \\
+        \multirow{-3}{*}{3}                     & PCA            &                    & LDA           & 1.00       \\
+        \rowcolor{lightgray}                    & SLMVP          & Polynomial-Order=5 & LDA           & 1.00       \\
+        \rowcolor{lightgray}                    & LLE            & k=30-reg=0.001     & KNN           & 1.00       \\
+        \rowcolor{lightgray}\multirow{-3}{*}{4} & LPP            & k=17               & LDA           & 1.00       \\
+                                                & SLMVP          & Linear             & LDA           & 1.00       \\
+                                                & LLE            & k=30-reg=0.001     & KNN           & 1.00       \\
+        \multirow{-3}{*}{5}                     & LPP            & k=17               & Random Forest & 1.00       \\
+        \bottomrule
+    \end{tabular}
+    \caption{Performance Comparison of Dimensionality Reduction Techniques on an artificially generated dataset. This dataset contains 20 centers, 300 features and sample size 1000. (See Annex Table \ref{annex-tab:artificial-dataset}) for full results.}
+    \label{tab:artificial-dataset}
+\end{table}
+
+% Comparison Line Chart
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{artificial_line_chart.png}
+    \caption{This figure shows how the accuracy of the best-performing model for each dimensionality reduction technique, evolves as the number of dimensions is increased.}
+    \label{fig:art_line_chart}
+\end{figure}
+
+For 2, 3, 4, and 5 dimensions, SLMVP, PCA and KPCA demonstrate the best performance among the tested dimensionality reduction techniques. They achieve an accuracy of 96\% in 2 dimensions and are able to correctly classify all the samples with 3 dimensions or more. Both SLMVP and KPCA achieve these results in their linear configurations, paired with the LLA classifier or K-Nearest Neighbors.
+However, LLE emerges as the winner when only 1 dimension is allowed in the classification task. It achieves a 90\% accuracy paired with the XGBoost classifier, much higher than the second-best performing, which is KPCA with a 63\% accuracy.
+
+Overall, SLMVP, KPCA and PCA demonstrate to be the most promising dimensionality reduction technique, especially when the classification task is not restricted to just 1 dimension. However, it is interesting to see how the results would change when applying the dimensionality reduction techniques to a real-world dataset.
+
+\subsection{Visualization}
+
+In this section, the results of applying various dimensionality reduction techniques are presented and compared using visual plots. The objective is to analyze and contrast the performance of these techniques in reducing the dimensionality of the dataset.
+
+Figures \ref{fig:artificial_2d} and \ref{fig:artificial_3d} display a scatter plot of the dataset after applying the techniques. The plot shows the reduced-dimensional representation of the data, where the axes represent the principal components. By examining the scatter plot, we can observe the clustering and distribution of the data points in the reduced space.
+
+% 2D Visualization
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{artificial_2d.png}
+    \caption{Visualization of the clusters projected into 2 dimensions that resulted from the application of the different dimensionality reduction techniques on the artificially-generated data.}
+    \label{fig:artificial_2d}
+\end{figure}
+
+% 3D Visualization
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{artificial_3d.png}
+    \caption{Visualization of the clusters projected into 3 dimensions that resulted from the application of the different dimensionality reduction techniques on the artificially-generated data.}
+    \label{fig:artificial_3d}
+\end{figure}
+
+By examining the scatter plots obtained from the different dimensionality reduction techniques, we can compare their performance in capturing and preserving the structure of the original dataset. The following observations can be made:
+
+\begin{itemize}
+    \item SLMVP with a linear kernel, PCA and LPP demonstrate a relatively even distribution of data points in the reduced space, indicating that it effectively captures the overall variance of the dataset. However, it may not be able to capture complex nonlinear relationships.
+    \item SLMVP and LOL exhibit a clear separation between different classes in the reduced space, even though this is not clearly visible in the LOL plot, since a few clusters lay very far away from where most of them are located. These are clearly separated although they appear to be overlapping. The notable class separation in the plots corresponding to SLMVP and LOL emphasizes the discriminative power between classes, making it useful for classification tasks.
+    \item SLMVP with a radial kernel captures the classes in a curve, which can be clearly seen in its 3-dimensional representation (Figure \ref{fig:artificial_3d}).
+\end{itemize}
+
+% Spearman's Rank Correlation - Heatmap
+\begin{center}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.8\textwidth]{heatmap_artificial.png}[!h]
+        \caption{Heatmap of Spearman Rank Correlation Coefficients}
+        \label{fig:heatmap-artificial}
+    \end{figure}
+\end{center}
+
+The heatmap in Figure \ref{fig:heatmap-artificial} visually represents the similarity and dissimilarity between different dimensionality reduction techniques based on their Spearman rank correlation coefficients. The correlation coefficients are calculated by measuring the absolute correlations between the data in the reduced space from each technique and the original data. Higher correlation coefficients indicate a stronger resemblance between the reduced-dimensional representations obtained using 2 dimensionality reduction techniques.
+
+The color and the color intensity in the heatmap represent the magnitude of the correlation coefficients. Darker red shades indicate higher correlation coefficients, indicating a stronger resemblance between the reduced-dimensional representations. Darker blue shades, on the other hand, suggest weaker correlations.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{artificial_slmvp_linear.png}
+    \caption{}
+    \label{fig:artificial_slmvp_linear}
+\end{figure}
+
+
+%rewrite
+% Each dot in this plot represents one community. Looking at the red dot out by itself to the right, you may conclude that this particular dot has a very high value for the first principal component and we would expect this community to have high values for the Arts, Health, Housing, Transportation, and Recreation. Whereas if you look at the red dot at the left of the spectrum, you would expect to have low values for each of those variables.
+
+% The top dot in blue has a high value for the second component. We would not expect this community to have the best Health Care. And conversely, if you were to look at the blue dot on the bottom, the corresponding community would have high values for Health Care.
+
+% Multilabel
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{2D-multilabel.png}
+    \caption{Visualization of the clusters projected into 2 dimensions that resulted from the application of the different dimensionality reduction techniques on artificially-generated multilabel data.}
+    \label{fig:2D_multilabel}
+\end{figure}
+
+\section{FIFA Dataset}\label{section:fifa}
+
+\subsection{Classification Results}
+
+In this section, we assess and compare different techniques for reducing the dimensionality of the FIFA dataset introduced in section \ref{section:fifa-dataset}. Our goal is to identify the techniques that provide the best results in terms of reducing the dataset's complexity. We present the evaluation results in Table \ref{tab:fifa-dataset}, which ranks the techniques based on their accuracy. The table shows the best-performing techniques at the top, and the order goes down from there.
+
+% Classification Table
+\begin{table}[!h]
+    \begin{tabular}{llllr}
+        \toprule
+        {}                                      & Dim. Technique & Dim. Params       & Model         & Accuracy \\
+        Dimensions                              &                &                   &               &          \\
+        \midrule
+                                                & LLE            & k=81-reg=0.001    & Random Forest & 0.889041 \\
+                                                & SLMVP          & Linear            & KNN           & 0.871233 \\
+        \multirow{-3}{*}{1}                     & LOL            &                   & LDA           & 0.846575 \\
+        \rowcolor{lightgray}                    & SLMVP          & Radial-Gammas=0.1 & Decision Tree & 0.931507 \\
+        \rowcolor{lightgray}                    & LLE            & k=81-reg=0.001    & Random Forest & 0.895890 \\
+        \rowcolor{lightgray}\multirow{-3}{*}{2} & LOL            &                   & Random Forest & 0.876712 \\
+                                                & SLMVP          & Radial-Gammas=0.1 & KNN           & 0.934247 \\
+                                                & LLE            & k=81-reg=0.001    & XGBoost       & 0.932877 \\
+        \multirow{-3}{*}{3}                     & PCA            &                   & XGBoost       & 0.906849 \\
+        \rowcolor{lightgray}                    & LLE            & k=81-reg=0.001    & XGBoost       & 0.946575 \\
+        \rowcolor{lightgray}                    & SLMVP          & Radial-Gammas=0.1 & LDA           & 0.931507 \\
+        \rowcolor{lightgray}\multirow{-3}{*}{4} & LPP            & k=5               & KNN           & 0.910959 \\
+                                                & LLE            & k=81-reg=0.001    & XGBoost       & 0.949315 \\
+                                                & SLMVP          & Radial-Gammas=0.1 & Random Forest & 0.932877 \\
+        \multirow{-3}{*}{5}                     & LPP            & k=5               & KNN           & 0.923288 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Performance Comparison of Dimensionality Reduction Techniques on the FIFA dataset. (See Annex Table \ref{annex-tab:fifa-dataset}) for full results.}
+    \label{tab:fifa-dataset}
+\end{table}
+
+% Comparison Line Chart
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{fifa_line_chart.png}
+    \caption{This figure shows how the accuracy of the best-performing model for each dimensionality reduction technique, evolves as the number of dimensions is increased.}
+    \label{fig:fifa_line_chart}
+\end{figure}
+
+\subsection{Visualization}
+
+% 2D Visualization
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{fifa_2d.png}
+    \caption{Visualization of the clusters projected into 2 dimensions that resulted from the application of the different dimensionality reduction techniques on the FIFA dataset.}
+    \label{fig:fifa_2d}
+\end{figure}
+
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{spider_fifa.png}
+    \caption{Visualization of }
+    \label{fig:spider_fifa}
+\end{figure}
+
+\begin{table}[!h]
+    \begin{tabular}{lrr}
+        \toprule
+        {}        & SLMVP Component 1  & SLMVP Component 2  \\
+        skill set &                    &                    \\
+        \midrule
+        attacking & \textbf{-0.128595} & \textbf{0.348037}  \\
+        defending & \textbf{0.619712}  & \textbf{-0.651872} \\
+        mentality & 0.015077           & 0.191322           \\
+        movement  & 0.072015           & 0.316958           \\
+        power     & -0.191797          & 0.094459           \\
+        skill     & 0.146032           & 0.455555           \\
+        \bottomrule
+    \end{tabular}
+    \caption{}
+    \label{tab:fifa-corr}
+\end{table}
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.4\textwidth]{spider_SLMVP_radial.png}
+    \label{fig:spider_slmvp_fifa}
+\end{figure}
+
+
+
+\section{Insurance Company Benchmark (COIL 2000) Dataset}
+
+In this section, we conduct an evaluation and comparison of various techniques aimed at reducing the dimensionality of the FIFA dataset introduced in section \ref{section:coil-dataset}. Our objective is to determine the most effective techniques for minimizing the dataset's complexity. The evaluation results are presented in Table \ref{tab:coil-dataset}, where the techniques are ranked based on their accuracy. The table showcases the top-performing techniques in descending order.
+
+\subsection{Classification Results}
+
+% Classification Table
+\begin{table}[!h]
+    \begin{tabular}{llllr}
+        \toprule
+        {}                                       & Dim. Technique & Dim. Params        & Model         & Accuracy \\
+        Dimensions                               &                &                    &               &          \\
+        \midrule
+                                                 & SLMVP          & Radial-Gammas=0.01 & KNN           & 0.760    \\
+                                                 & LOL            &                    & Naive Bayes   & 0.730    \\
+        \multirow{-3}{*}{1}                      & KPCA           & Linear             & Naive Bayes   & 0.700    \\
+        \rowcolor{lightgray}                     & SLMVP          & Radial-Gammas=0.01 & LDA           & 0.775    \\
+        \rowcolor{lightgray}                     & LOL            &                    & Naive Bayes   & 0.735    \\
+        \rowcolor{lightgray}\multirow{-3}{*}{3}  & LLE            & k=28-reg=0.001     & Naive Bayes   & 0.715    \\
+                                                 & SLMVP          & Linear             & Naive Bayes   & 0.750    \\
+                                                 & LOL            &                    & Naive Bayes   & 0.725    \\
+        \multirow{-3}{*}{5}                      & KPCA           & Linear             & AdaBoost      & 0.715    \\
+        \rowcolor{lightgray}                     & SLMVP          & Radial-Gammas=0.01 & KNN           & 0.740    \\
+        \rowcolor{lightgray}                     & LOL            &                    & Random Forest & 0.710    \\
+        \rowcolor{lightgray}\multirow{-3}{*}{15} & KPCA           & Radial-Gamma=0.007 & Naive Bayes   & 0.705    \\
+                                                 & SLMVP          & Linear             & KNN           & 0.755    \\
+                                                 & LLE            & k=28-reg=0.001     & LDA           & 0.740    \\
+        \multirow{-3}{*}{30}                     & LPP            & k=11               & KNN           & 0.725    \\
+        \bottomrule
+    \end{tabular}
+    \caption{Performance Comparison of Dimensionality Reduction Techniques on the COIL 2000 dataset. (See Annex Table \ref{annex-tab:coil-dataset}) for full results.}
+    \label{tab:coil-dataset}
+\end{table}
+
+% Comparison Line Chart
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{coil_line_chart.png}
+    \caption{This figure shows how the accuracy of the best-performing model for each dimensionality reduction technique, evolves as the number of dimensions is increased.}
+    \label{fig:coil_line_chart}
+\end{figure}
+
+\subsection{Visualization}
+% https://online.stat.psu.edu/stat505/lesson/11/11.4
+
+% 2D Visualization
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{coil2000_2d.png.png}
+    \caption{Visualization of the clusters projected into 2 dimensions that resulted from the application of the different dimensionality reduction techniques on the COIL 2000 dataset.}
+    \label{fig:coil-2d}
+\end{figure}
+
+% 3D Visualization
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{coil2000_3d.png.png}
+    \caption{Visualization of the clusters projected into 3 dimensions that resulted from the application of the different dimensionality reduction techniques on the COIL 2000 dataset.}
+    \label{fig:coil-3d}
+\end{figure}
+
+\section{ORL Dataset}
+
+\subsection{Classification Results}
+
+% Classification Table
+\begin{table}[!h]
+    \begin{tabular}{llllr}
+        \toprule
+        {}                                       & Dim. Technique & Dim. Params    & Model         & Accuracy \\
+        Dimensions                               &                &                &               &          \\
+        \midrule
+                                                 & LLE            & k=18-reg=0.001 & KNN           & 0.300    \\
+                                                 & KPCA           & Linear         & Random Forest & 0.200    \\
+        \multirow{-3}{*}{1}                      & PCA            &                & XGBoost       & 0.175    \\
+        \rowcolor{lightgray}                     & KPCA           & Linear         & SVM           & 0.750    \\
+        \rowcolor{lightgray}                     & LLE            & k=18-reg=0.001 & SVM           & 0.750    \\
+        \rowcolor{lightgray}\multirow{-3}{*}{3}  & PCA            &                & SVM           & 0.750    \\
+                                                 & LOL            &                & SVM           & 0.925    \\
+                                                 & KPCA           & Linear         & SVM           & 0.900    \\
+        \multirow{-3}{*}{5}                      & PCA            &                & SVM           & 0.900    \\
+        \rowcolor{lightgray}                     & KPCA           & Linear         & SVM           & 0.975    \\
+        \rowcolor{lightgray}                     & LOL            &                & SVM           & 0.975    \\
+        \rowcolor{lightgray}\multirow{-3}{*}{15} & PCA            &                & SVM           & 0.975    \\
+                                                 & KPCA           & Linear         & SVM           & 1.000    \\
+                                                 & LOL            &                & LDA           & 1.000    \\
+        \multirow{-3}{*}{30}                     & PCA            &                & SVM           & 1.000    \\
+        \bottomrule
+    \end{tabular}
+    \caption{Performance Comparison of Dimensionality Reduction Techniques on the ORL dataset. (See Annex Table \ref{annex-tab:orl-dataset}) for full results.}
+    \label{tab:orl-dataset}
+\end{table}
+
+% Comparison Line Chart
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{orl_line_chart.png}
+    \caption{This figure shows how the accuracy of the best-performing model for each dimensionality reduction technique, evolves as the number of dimensions is increased.}
+    \label{fig:orl_line_chart}
+\end{figure}
+
+\subsection{Visualization}
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=1\textwidth]{orl1.png}
+    \caption{Visualization of the clusters projected into 2 dimensions that resulted from the application of the different dimensionality reduction techniques on the ORL dataset.}
+    \label{fig:orl}
+\end{figure}
+
+% https://online.stat.psu.edu/stat505/lesson/11/11.4

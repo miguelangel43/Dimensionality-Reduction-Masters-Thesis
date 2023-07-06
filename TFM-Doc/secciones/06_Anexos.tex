@@ -1,0 +1,166 @@
+\chapter*{Annex}
+
+\begin{table}
+    \begin{tabular}{llllr}
+        \toprule
+        {}                                      & Dim. Technique & Dim. Params        & Model         & Best Score \\
+        Dimensions                              &                &                    &               &            \\
+        \midrule
+                                                & LLE            & k=30-reg=0.001     & XGBoost       & 0.90       \\
+                                                & KPCA           & Linear             & XGBoost       & 0.63       \\
+                                                & PCA            &                    & KNN           & 0.57       \\
+                                                & SLMVP          & Linear             & XGBoost       & 0.56       \\
+                                                & LPP            & k=17               & Decision Tree & 0.47       \\
+        \multirow{-6}{*}{1}                     & LOL            &                    & LDA           & 0.34       \\
+        \rowcolor{lightgray}                    & KPCA           & Linear             & KNN           & 0.96       \\
+        \rowcolor{lightgray}                    & PCA            &                    & Random Forest & 0.96       \\
+        \rowcolor{lightgray}                    & SLMVP          & Linear             & LDA           & 0.96       \\
+        \rowcolor{lightgray}                    & LLE            & k=30-reg=0.001     & KNN           & 0.91       \\
+        \rowcolor{lightgray}                    & LPP            & k=17               & Random Forest & 0.89       \\
+        \rowcolor{lightgray}\multirow{-6}{*}{2} & LOL            &                    & LDA           & 0.64       \\
+                                                & KPCA           & Linear             & LDA           & 1.00       \\
+                                                & LLE            & k=30-reg=0.001     & LDA           & 1.00       \\
+                                                & PCA            &                    & LDA           & 1.00       \\
+                                                & SLMVP          & Linear             & LDA           & 1.00       \\
+                                                & LPP            & k=17               & LDA           & 0.96       \\
+        \multirow{-6}{*}{3}                     & LOL            &                    & LDA           & 0.85       \\
+        \rowcolor{lightgray}                    & KPCA           & Linear             & LDA           & 1.00       \\
+        \rowcolor{lightgray}                    & LLE            & k=30-reg=0.001     & KNN           & 1.00       \\
+        \rowcolor{lightgray}                    & LPP            & k=17               & LDA           & 1.00       \\
+        \rowcolor{lightgray}                    & PCA            &                    & LDA           & 1.00       \\
+        \rowcolor{lightgray}                    & SLMVP          & Polynomial-Order=5 & LDA           & 1.00       \\
+        \rowcolor{lightgray}\multirow{-6}{*}{4} & LOL            &                    & Naive Bayes   & 0.95       \\
+                                                & KPCA           & Linear             & LDA           & 1.00       \\
+                                                & LLE            & k=30-reg=0.001     & KNN           & 1.00       \\
+                                                & LPP            & k=17               & Random Forest & 1.00       \\
+                                                & PCA            &                    & LDA           & 1.00       \\
+                                                & SLMVP          & Linear             & LDA           & 1.00       \\
+        \multirow{-6}{*}{5}                     & LOL            &                    & KNN           & 0.99       \\
+        \bottomrule
+    \end{tabular}
+    \caption{Artificial Dataset}
+    \label{annex-tab:artificial-dataset}
+\end{table}
+
+
+\begin{table}
+    \begin{tabular}{llllr}
+        \toprule
+        {}         & Dim. Technique & Dim. Params        & Model         & Accuracy \\
+        Dimensions &                &                    &               &          \\
+        \midrule
+        1          & SLMVP          & Linear             & KNN           & 0.86     \\
+        1          & LOL            &                    & Naive Bayes   & 0.85     \\
+        1          & KPCA           & Linear             & LDA           & 0.83     \\
+        1          & PCA            &                    & LDA           & 0.83     \\
+        1          & LLE            & k=30-reg=0.001     & AdaBoost      & 0.54     \\
+        1          & LPP            & k=5                & KNN           & 0.50     \\
+        2          & SLMVP          & Radial-Gammas=0.1  & XGBoost       & 0.96     \\
+        2          & LPP            & k=5                & Random Forest & 0.90     \\
+        2          & LOL            &                    & KNN           & 0.89     \\
+        2          & KPCA           & Linear             & Decision Tree & 0.84     \\
+        2          & PCA            &                    & Decision Tree & 0.84     \\
+        2          & LLE            & k=30-reg=0.001     & Random Forest & 0.58     \\
+        3          & SLMVP          & Radial-Gammas=0.1  & XGBoost       & 0.96     \\
+        3          & KPCA           & Linear             & SVM           & 0.93     \\
+        3          & LPP            & k=5                & SVM           & 0.93     \\
+        3          & PCA            &                    & KNN           & 0.93     \\
+        3          & LOL            &                    & KNN           & 0.89     \\
+        3          & LLE            & k=30-reg=0.001     & SVM           & 0.85     \\
+        4          & SLMVP          & Radial-Gammas=0.01 & Random Forest & 0.96     \\
+        4          & LPP            & k=5                & XGBoost       & 0.94     \\
+        4          & KPCA           & Linear             & SVM           & 0.90     \\
+        4          & PCA            &                    & SVM           & 0.90     \\
+        4          & LOL            &                    & SVM           & 0.89     \\
+        4          & LLE            & k=30-reg=0.001     & SVM           & 0.84     \\
+        5          & SLMVP          & Radial-Gammas=0.1  & SVM           & 0.95     \\
+        5          & LLE            & k=30-reg=0.001     & SVM           & 0.94     \\
+        5          & LOL            &                    & XGBoost       & 0.91     \\
+        5          & LPP            & k=5                & KNN           & 0.91     \\
+        5          & KPCA           & Linear             & SVM           & 0.89     \\
+        5          & PCA            &                    & SVM           & 0.89     \\
+        \bottomrule
+    \end{tabular}
+
+    \caption{FIFA Dataset}
+    \label{annex-tab:fifa-dataset}
+\end{table}
+
+\begin{table}
+    \begin{tabular}{llllr}
+        \toprule
+        {}                                       & Dim. Technique & Dim. Params        & Model         & Accuracy \\
+        Dimensions                               &                &                    &               &          \\
+        \midrule
+                                                 & LLE            & k=18-reg=0.001     & KNN           & 0.300    \\
+                                                 & KPCA           & Linear             & Random Forest & 0.200    \\
+                                                 & PCA            &                    & XGBoost       & 0.175    \\
+                                                 & LOL            &                    & XGBoost       & 0.125    \\
+        \multirow{-3}{*}{1}                      & SLMVP          & Radial-Gammas=0.01 & Naive Bayes   & 0.125    \\
+        \rowcolor{lightgray}                     & KPCA           & Linear             & SVM           & 0.750    \\
+        \rowcolor{lightgray}                     & LLE            & k=18-reg=0.001     & SVM           & 0.750    \\
+        \rowcolor{lightgray}                     & PCA            &                    & SVM           & 0.750    \\
+        \rowcolor{lightgray}                     & LOL            &                    & KNN           & 0.525    \\
+        \rowcolor{lightgray}\multirow{-3}{*}{3}  & SLMVP          & Polynomial-Order=5 & XGBoost       & 0.300    \\
+                                                 & LOL            &                    & SVM           & 0.925    \\
+                                                 & KPCA           & Linear             & SVM           & 0.900    \\
+                                                 & PCA            &                    & SVM           & 0.900    \\
+                                                 & LLE            & k=18-reg=0.001     & KNN           & 0.850    \\
+        \multirow{-3}{*}{5}                      & SLMVP          & Polynomial-Order=5 & Random Forest & 0.325    \\
+        \rowcolor{lightgray}                     & KPCA           & Linear             & SVM           & 0.975    \\
+        \rowcolor{lightgray}                     & LOL            &                    & SVM           & 0.975    \\
+        \rowcolor{lightgray}                     & PCA            &                    & SVM           & 0.975    \\
+        \rowcolor{lightgray}                     & LLE            & k=18-reg=0.001     & SVM           & 0.925    \\
+        \rowcolor{lightgray}\multirow{-3}{*}{15} & SLMVP          & Radial-Gammas=0.1  & Naive Bayes   & 0.750    \\
+                                                 & KPCA           & Linear             & SVM           & 1.000    \\
+                                                 & LOL            &                    & LDA           & 1.000    \\
+                                                 & PCA            &                    & SVM           & 1.000    \\
+                                                 & LLE            & k=18-reg=0.001     & Random Forest & 0.950    \\
+        \multirow{-3}{*}{30}                     & SLMVP          & Radial-Gammas=0.1  & Naive Bayes   & 0.925    \\
+        \bottomrule
+    \end{tabular}
+    \caption{ORL Dataset}
+    \label{annex-tab:orl-dataset}
+\end{table}
+
+\begin{table}
+    \begin{tabular}{llllr}
+        \toprule
+        {}                                       & Dim. Technique & Dim. Params        & Model         & Accuracy \\
+        Dimensions                               &                &                    &               &          \\
+        \midrule
+                                                 & SLMVP          & Radial-Gammas=0.01 & KNN           & 0.760    \\
+                                                 & LOL            &                    & Naive Bayes   & 0.730    \\
+                                                 & KPCA           & Linear             & Naive Bayes   & 0.700    \\
+                                                 & PCA            &                    & Naive Bayes   & 0.700    \\
+                                                 & LLE            & k=28-reg=0.001     & LDA           & 0.660    \\
+        \multirow{-6}{*}{1}                      & LPP            & k=11               & LDA           & 0.660    \\
+        \rowcolor{lightgray}                     & SLMVP          & Radial-Gammas=0.01 & LDA           & 0.775    \\
+        \rowcolor{lightgray}                     & LOL            &                    & Naive Bayes   & 0.735    \\
+        \rowcolor{lightgray}                     & LLE            & k=28-reg=0.001     & Naive Bayes   & 0.715    \\
+        \rowcolor{lightgray}                     & KPCA           & Linear             & Naive Bayes   & 0.700    \\
+        \rowcolor{lightgray}                     & PCA            &                    & Naive Bayes   & 0.700    \\
+        \rowcolor{lightgray}\multirow{-6}{*}{3}  & LPP            & k=11               & Random Forest & 0.670    \\
+                                                 & SLMVP          & Linear             & Naive Bayes   & 0.750    \\
+                                                 & LOL            &                    & Naive Bayes   & 0.725    \\
+                                                 & KPCA           & Linear             & AdaBoost      & 0.715    \\
+                                                 & PCA            &                    & AdaBoost      & 0.715    \\
+                                                 & LLE            & k=28-reg=0.001     & Naive Bayes   & 0.705    \\
+        \multirow{-6}{*}{5}                      & LPP            & k=11               & AdaBoost      & 0.665    \\
+        \rowcolor{lightgray}                     & SLMVP          & Radial-Gammas=0.01 & KNN           & 0.740    \\
+        \rowcolor{lightgray}                     & LOL            &                    & Random Forest & 0.710    \\
+        \rowcolor{lightgray}                     & KPCA           & Radial-Gamma=0.007 & Naive Bayes   & 0.705    \\
+        \rowcolor{lightgray}                     & PCA            &                    & LDA           & 0.705    \\
+        \rowcolor{lightgray}                     & LLE            & k=28-reg=0.001     & Decision Tree & 0.690    \\
+        \rowcolor{lightgray}\multirow{-6}{*}{15} & LPP            & k=11               & Random Forest & 0.665    \\
+                                                 & SLMVP          & Linear             & KNN           & 0.755    \\
+                                                 & LLE            & k=28-reg=0.001     & LDA           & 0.740    \\
+                                                 & LPP            & k=11               & KNN           & 0.725    \\
+                                                 & KPCA           & Radial-Gamma=0.007 & Random Forest & 0.710    \\
+                                                 & PCA            &                    & KNN           & 0.710    \\
+        \multirow{-6}{*}{30}                     & LOL            &                    & KNN           & 0.700    \\
+        \bottomrule
+    \end{tabular}
+    \caption{COIL2000 Dataset}
+    \label{annex-tab:coil-dataset}
+\end{table}

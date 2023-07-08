@@ -1,35 +1,34 @@
 \chapter{Introduction}
 
-% TODO
-% - Llevar el paragrafo 2 al final de la introducción.
-% - Explicar que dimensionality reduction es el primer paso de una pipeline de machine learning
-% - Mencionar B2, B4 de Jollife
-%
-
 As the availability of data continues to grow exponentially, the need for efficient and effective methods to reduce dimensionality and extract relevant information becomes more important.
+% Definition of dimensionality reduction
+Dimensionality reduction involves transforming data from a high-dimensional space to a low-dimensional space, while preserving meaningful properties close to its intrinsic dimension. It plays a crucial role in the preprocessing phase of a machine learning pipeline. It is typically applied after the data has been collected and before the training phase begins.
+
 % Feature Selection & Feature Extraction
-Feature selection and feature extraction are two commonly used techniques in machine learning to reduce the dimensionality of a dataset. These techniques aim at identifying the most relevant features from the original set of input variables.
+In the domain of machine learning, two commonly employed techniques for dimensionality reduction are feature selection and feature extraction. These techniques aim at identifying the most relevant features from the original set of input variables.
 Feature selection tries to identify the subset that contains the most relevant and informative features while excluding redundant ones.
 Feature extraction transforms the original set of features into a new set that is created by combining the original variables, thereby projecting the data onto a subspace of lower dimensionality. This process involves capturing the underlying structure and patterns of the data while reducing its dimensionality.
 
-In this thesis, we explore various feature selection techniques including Principal Component Analysis (PCA), Kernel-PCA (KPCA), Linear Optimal Low Rank (LOL), Locality Preserving Projections (LPP), Locally Linear Embedding (LLE) and Supervised Local Maximum Variance Preserving (SLMVP).
-
-There are two main binary classes into which these techniques can be classified: supervised or unsupervised, and local or not local.
+There are two main binary classes into which feature selection techniques can be classified: supervised or unsupervised, and local or not local.
 % Supervised vs. Unsupervised
 Supervised learning consists on training a model on labeled data, where the input samples have associated target or output labels, whereas unsupervised learning consists on training a model on unlabeled data, where the input samples do not have associated target or output labels. A lot of research in dimensionality reduction has been devoted to unsupervised techniques, including PCA, KPCA, LPP and LLE. This approach results in dimensions that have no statistical guarantee of being close to the best ones for classification. The recent supervised techniques LOL and SLMVP make it worth shifting the focus, since they outperform their unsupervised counterparts in several metrics.
 
 % Local vs. Not Local
 Local dimensionality reduction techniques focus on preserving the local structure and relationships among data points in the reduced feature space. They aim to maintain the similarities and dissimilarities among neighboring data points. LLE, LPP and SLMVP have this property, however SLMVP is the only dimensionality reduction technique that is both local and supervised.
+% List of state-of-the art techniques
+In the Related Work section of this thesis, we explore various feature selection techniques including Principal Component Analysis \cite{pca} (PCA), Kernel-PCA \cite{kpca} (KPCA), Linear Optimal Low Rank \cite{lol} (LOL), Locality Preserving Projections \cite{lpp} (LPP), Locally Linear Embedding \cite{lle} (LLE) and Supervised Local Maximum Variance Preserving \cite{slmvp} (SLMVP).
 
 % Introduce Explainability and connect it to the aim of this thesis
-% TODO
+Explainable Artificial Intelligence \cite{xai} (XAI) aims at understanding machine learning model predictions and explain them in human and understandable terms to build trust with stakeholders. As artificial intelligence becomes more advanced and complex, they often operate as black boxes, making complex computations and generating results without transparently revealing the underlying processes. The objective of XAI methods is to reveal the internal mechanisms and decision-making of the models or the data. There exists machine learning models that provide inherent interpretability, such as decision trees or rule-based models. In addition, XAI methods such as Local Interpretable Model-Agnostic Explanations \cite{lime} (LIME) or SHapley Additive exPlanations \cite{shap} (SHAP) seek to explain the prediction  of black-box models.
+
+% Explainability for the selection of features or components
+Having a good grasp of how the dependent variables explain the independent variable is key to select the features to use in a machine learning pipeline, as well as the number of components to take after a dimensionality reduction technique has been applied. I. T. Jolliffe \cite{b2b4} leverages the explainability that PCA provides, to exclude features from the modeling process using different methods. In this thesis, a recommendation will be given as to which features should remain and how many components should be used for the machine learning task.
 
 % Introduction of objectives
-% TODO
-
+The primary objectives of this master's thesis are the following.
 % List the objectives of the thesis
 \begin{enumerate}
-    \item Dig deep into SLMVP intricacies.
+    \item Study the foundations of SLMVP.
     \item Train SLMVP and other models and find the configuration of their parameters that is best for a classification task.
     \item Draw meaningful conclusions from the coefficients of the components that result from applying each of the dimensionality reduction techniques.
     \item Compare SLMVP against other state-of-the-art techniques on basis of the interpretation of their coefficients.
@@ -37,10 +36,10 @@ Local dimensionality reduction techniques focus on preserving the local structur
 \end{enumerate}
 
 % List the main sections the thesis is organized into. With a very brief summary.
-% TODO
-
+In accordance with the goals stated above, this document is structured into five primary sections.
 \begin{enumerate}
     \item Introduction.
-    \item Methodology: the experiments are described.
-          \subitem Datasets: the datasets (ORL, COIL2000) are introduced.
+    \item Related Work: explores existing literature and research in the fields of dimensionality reduction and explainable artificial intelligence.
+    \item Methodology: explains the experimental setup, interpretation of components, and the process of selecting features and components.
+    \item Results and conclusions: shows the results of the evaluation of the dimensionality reduction techniques based on their performance in a classifying task, and explains the components of the discovered subspaces by the best-performing techniques.
 \end{enumerate}

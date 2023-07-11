@@ -1,55 +1,16 @@
 \chapter{Methodology}
+This section explains the experimental setup, interpretation of components, and the process of selecting features and components.
 
-% 1. Classification process
-
-% 2. Datasets
-
-% 2. Correlation of components with original features
-%   - Show plots (Slope Chart)
-%   - 
-
-% 3. Spearman Rank correlation between techniques
-
-\section{Experimental Setup}
-
-\subsection{Datasets}
-This section introduces the datasets utilized in this master's thesis. The aim is to provide a comprehensive overview of the datasets, including their sources, characteristics, and any preprocessing steps applied.
-
-\subsubsection{Artificial Dataset}\label{section:artificial-dataset}
-
-\subsubsection{FIFA}\label{section:fifa-dataset}
-The FIFA dataset encompasses data from various editions of the popular FIFA video game series, which serves as a reliable source of player information. The dataset contains detailed attributes for each player, including playing positions, skill ratings (such as dribbling, shooting, and passing), and performance statistics (such as goals, assists, and appearances).
-
-Furthermore, it includes the estimated market value of each player, which has often been used as the dependent variable in a regression or classification task.
-
-\subsubsection{Our Database of Faces (ORL) Dataset}\label{section:orl-dataset}
-This dataset \cite{orl_dataset} was created at the AT\&T Laboratories in Cambridge, UK, in the context of a face recognition project the laboratory was doing with the Speech, Vision and Robotics Group of the Cambridge University Engineering Department. It contains face images taken between April 1992 and April 1994, 10 images of 40 different subjects, a total of 400 images. It consists of grayscale images of 40 individuals, with 10 images per person. The dataset was collected under controlled conditions, with variations in facial expression, lighting conditions, and facial details.
-
-Each image in the ORL dataset has a resolution of 92 pixels by 112 pixels. The images were captured under different poses, including variations in head rotation and tilt, providing a diverse set of facial orientations. The ORL dataset offers a realistic representation of face images encountered in real-world scenarios, making it a suitable choice for evaluating the performance of face recognition algorithms. The dataset has been extensively used for training and testing various dimensionality reduction techniques.
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.4\textwidth]{The-ORL-database-for-training-and-testing.png}
-    \caption{Our Database of Faces (ORL) Dataset}
-    \label{fig:orl_faces}
-\end{figure}
-
-\subsubsection{COIL2000}\label{section:coil-dataset}
-This dataset used in the CoIL 2000 Challenge contains information on customers of an insurance company. The data consists of 86 variables and includes product usage data and socio-demographic data. The data was supplied by the Dutch data mining company Sentient Machine Research and is based on a real world business problem. The training set contains over 5000 descriptions of customers, including the information of whether or not they have a caravan insurance policy. A test set contains 4000 customers of whom only the organizers know if they have a caravan insurance policy.
-
-The dataset had class imbalance, as a large majority of customers have zero claims, only 348 customers had a claim. Sklearn's \textit{RandomOverSampler} was used to balance it.
-%\cite{van2004bias}
-
-\section{Spearman's Rank Correlation Coefficient} \label{section:spearman}
-Spearman's rank correlation coefficient is a nonparametric measure of rank correlation. It measures the statistical dependence between the rankings of two variables. It is defined as the Pearson correlation coefficient between the rank variables. For variables $X$, $Y$ converted to ranks $R(X)$, $R(Y)$. The Spearman rank correlation coefficient is calculated in the following way.
-\begin{equation}
-    r_s = \rho_{R(X), R(Y)} = \frac{cov(R(X),R(Y))}{\sigma_{R(X)} \sigma_{R(Y)}}
-\end{equation}
-
+% \section{Spearman's Rank Correlation Coefficient} \label{section:spearman}
+% Spearman's rank correlation coefficient is a nonparametric measure of rank correlation. It measures the statistical dependence between the rankings of two variables. It is defined as the Pearson correlation coefficient between the rank variables. For variables $X$, $Y$ converted to ranks $R(X)$, $R(Y)$. The Spearman rank correlation coefficient is calculated in the following way.
+% \begin{equation}
+%     r_s = \rho_{R(X), R(Y)} = \frac{cov(R(X),R(Y))}{\sigma_{R(X)} \sigma_{R(Y)}}
+% \end{equation}
 
 \section{Interpretation of Components}
+We will provide an explanation of principal components in two dimensions. First, we will determine their relationship with the original features of the data. Second, we will examine how the components obtained through one technique relate to those obtained through another technique. The methods behind how these questions are addressed will be explained in detail to provide a comprehensive understanding.
 
-The objective at hand is to determine the significance that each dimensionality reduction technique assigns to each of the original features. To accomplish this, we compute the ranking of the absolute correlation between the dimensions generated by the technique and the original features.
+\subsection{Explaining Components}\label{exp_comp}
 
 Before diving into the step-by-step process, it is essential to define some variables that are present in dimensionality reduction tasks: let the input data $X$ be an $n \times p$ matrix, where each row represents a sample and each column, denoted as $X_1, X_2, ..., X_p$, corresponds to a feature. Furthermore, let $V \in \mathbb{R}^{d \times p}$ be the projection matrix, i.e., the matrix that projects $p$-dimensional data into a $d$-dimensional subspace and let $V_i$ represent the $i$-th column of $V$ sorted in descending order by their significance (e.g., by the magnitude of their eigenvalues or the variability they capture). Finally let $P \in \mathbb{R}^{n \times d}$ be the the projection of the data into the $d$-dimensional space, so that $P = XV$ holds, with columns $P_1, P_2,..., P_d$.
 
@@ -65,6 +26,11 @@ $$
     \end{bmatrix}
 $$
 
+This vector of correlations will be utilized to explain a component based on the original features. We could now make statements such as: "component 1 is positively correlated with feature $X_1$, negatively correlated with $X_3$ and does not show any other strong correlations", and draw insights from how the data is distributed along this the axis that this component represents.
+
+\subsection{Comparing Techniques}
+
+We can also leverage the correlations between the dimensions generated by the technique and the original features to compare the similarity and dissimilarity of the components obtained applying different techniques.
 Correlation can be negative or positive. However, it is the absolute value what determines the degree of significance of the correlation. Therefore, we take the absolute values $|corr(P_i,X_j)|$. Moreover, the difference between the value of correlations is not uniform among the different dimensionality reduction techniques and it prevents us from doing a fair comparison. To address that, we take the position of the absolute correlation in a list that is sorted in ascending order. Let $index(j)$ be the index such that $\#\{i : x_i \leq x_j\} = \lfloor j \rfloor$ for $i, j \in \{1,2,...,p\}$.
 
 $$
@@ -118,13 +84,93 @@ $$
     \right) = 0.5
 $$
 
-This way we can effectively calculate the similarities and dissimilarities of the first component calculated with the most prominent dimensionality reduction techniques and conclude that, for the dataset used, they are similar or dissimilar. Figure \ref{fig:bw-heatmap} shows an example of a heat map with the coefficients.
-
-\begin{figure}[!h]
-    \centering
-    \includegraphics[width=0.6\textwidth]{bw_heatmap.png}
-    \caption{Example of Heatmap of Spearman Rank Correlation Coefficients}
-    \label{fig:bw-heatmap}
-\end{figure}
+This way we can effectively calculate the similarities and dissimilarities of the first component calculated with the most prominent dimensionality reduction techniques and conclude that, for the dataset used, they are similar or dissimilar.
 
 This can be further extended so that the we can compare all the components calculated with one dimensionality reduction technique with all the components calculated with another dimensionality reduction technique. In order to do that, we calculate a vector $s_1^*$ which corresponds to the average of $s_1, ..., s_p$ weighted by the variability that each component captures. This variability can be thought of as the eigenvalues corresponding the eigenvectors that form the projection matrix $V$. As I do not have access to the eigenvalues for some of the dimensionality reduction techniques, this is calculated proportionally to the variation of each component. E.g., $Var(s_1)/\sum_i Var(s_i)$ would be the weight corresponding to $s_1$.
+
+\section{Choosing Features and Components}
+% Big questions
+There are two big open questions when applying dimensionality reduction in a machine learning pipeline: which features should one retain or discard?, and how many components should one utilize for subsequent modeling?
+% Answers
+The writer of this thesis gives a recommendation based on the explainability of components. As to the first question, only the features that show an absolute correlation that is higher than a threshold $\lambda$ should be chosen. Therefore the amount of features that are retained will depend on the choice of this threshold. The reader should be advised that this would work best with dimensionality reduction techniques that are supervised and not only try to capture the variability of the data, but also incorporate the relationship between dependent and independent variables.
+
+The recommendation concerning the amount of components is to make that choice based on a heuristic visual analysis of a line plot of the eigenvalues of principal components, or of the cumulative explained variance, and look for the point where the curve starts to level off, this is sometimes known as the "elbow method".
+
+\section{Experimental Setup}
+This section details the selection and preparation of datasets, describes the dimensionality reduction techniques and machine learning algorithms utilized.
+
+\subsection{Techniques and Models}
+We want to explain dimensionality reduction techniques with the parameters that fit the data well, and we measure that by the accuracy that they yield when used in a machine learning pipeline. For that purpose, the algorithms are run in different settings and then machine learning models use the components for the classification task. These machine learning models are, in turn, also tested with different parameters.
+
+\begin{itemize}
+    \item PCA
+          \subitem Default parameters.
+    \item SLMVP
+          \subitem Kernel: linear, polynomial of order 5, radial rbf with gamma values $0.1$ and $0.01$ for both the dependent and the independent variables.
+    \item KPCA
+          \subitem Kernel: linear, polynomial of order 5, radial rbf with gamma value $0.1$ and $\frac{1}{\text{\# rows}}$.
+    \item LOL
+          \subitem Default parameters.
+    \item LPP
+          \subitem  Number of neighbors to consider on the adjacency graph:
+          \subitem $\lfloor\sqrt{min(\text{\# rows, \# columns})}\rfloor$.
+    \item LLE
+          \subitem Number of neighbors to generate the local linear approximation:
+          \subitem $\lfloor\sqrt{min(\text{\# rows, \# columns})}\rfloor$
+          \subitem Regularization parameter: $0.001$.
+\end{itemize}
+
+Similarly, the machine learning classifiers have been configured on the grid search with the following parameters:
+
+\begin{itemize}
+    \item XGBoost
+          \subitem Number of estimators: $5, 10, 20, 50,$ and $100$ were tested
+    \item KNN.
+          \subitem Number of neighbors: $3, 5, 10, 20, 50,$ and $100$ were tested.
+    \item SVM
+          \subitem Regularization parameter C: $0.1, 1,$ and $10$.
+          \subitem Kernel: linear, radial rbf and polynomial.
+    \item Decision Tree.
+          \subitem Maximum depth: $None, 5, 10, 20,$ and $50$
+    \item Naive Bayes
+    \item Random Forest
+          \subitem Number of estimators: $50, 100,$ and $200$
+          \subitem Maximum depth: $None, 5, 10,$ and $20$
+    \item LDA
+          \subitem Solver: svd, lsqr, and eigen.
+    \item AdaBoost
+          \subitem Number of estimators: $50, 100,$ and $200$.
+          \subitem Learning rate: $0.1, 0.5,$ and $1$.
+\end{itemize}
+
+\subsection{Datasets}
+This section introduces the datasets utilized in this master's thesis. The aim is to provide a comprehensive overview of the datasets, including their sources, characteristics, and any preprocessing steps applied.
+
+\subsubsection{Artificial Datasets}\label{section:artificial-dataset}
+% Single Label
+Sklearn's make\_blobs was utilized to create a single-label dataset. It created a multiclass datasets by allocating each class one or more normally-distributed clusters of points. The dataset was of sample size 1000, 300 features and 20 classes, with a cluster standard deviation of 2. The high number of features and low sample size is perfect for the "large $p$, small $n$" problem that dimensionality reduction tries to address.
+% Multilabel
+Sklearn's make\_multilabel\_classification was utilized to create a multilabel dataset.
+
+\subsubsection{FIFA}\label{section:fifa-dataset}
+The FIFA dataset encompasses data from various editions of the popular FIFA video game series, which serves as a reliable source of player information. The dataset contains detailed attributes for each player, including playing positions, skill ratings (such as dribbling, shooting, and passing), and performance statistics (such as goals, assists, and appearances).
+
+Furthermore, it includes the estimated market value of each player, which has often been used as the dependent variable in a regression or classification task.
+
+\subsubsection{Our Database of Faces (ORL) Dataset}\label{section:orl-dataset}
+This dataset \cite{orl_dataset} was created at the AT\&T Laboratories in Cambridge, UK, in the context of a face recognition project the laboratory was doing with the Speech, Vision and Robotics Group of the Cambridge University Engineering Department. It contains face images taken between April 1992 and April 1994, 10 images of 40 different subjects, a total of 400 images. It consists of grayscale images of 40 individuals, with 10 images per person. The dataset was collected under controlled conditions, with variations in facial expression, lighting conditions, and facial details.
+
+Each image in the ORL dataset has a resolution of 92 pixels by 112 pixels. The images were captured under different poses, including variations in head rotation and tilt, providing a diverse set of facial orientations. The ORL dataset offers a realistic representation of face images encountered in real-world scenarios, making it a suitable choice for evaluating the performance of face recognition algorithms. The dataset has been extensively used for training and testing various dimensionality reduction techniques.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.4\textwidth]{The-ORL-database-for-training-and-testing.png}
+    \caption{Our Database of Faces (ORL) Dataset}
+    \label{fig:orl_faces}
+\end{figure}
+
+\subsubsection{COIL2000}\label{section:coil-dataset}
+This dataset used in the CoIL 2000 Challenge contains information on customers of an insurance company.\cite{coil} The data consists of 86 variables and includes product usage data and socio-demographic data. The data was supplied by the Dutch data mining company Sentient Machine Research and is based on a real world business problem. The training set contains over 5000 descriptions of customers, including the information of whether or not they have a caravan insurance policy. A test set contains 4000 customers of whom only the organizers know if they have a caravan insurance policy.
+
+The dataset had class imbalance, as a large majority of customers have zero claims, only 348 customers had a claim. Sklearn's \textit{RandomOverSampler} was used to balance it.
+%\cite{van2004bias}

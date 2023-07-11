@@ -23,7 +23,7 @@
 \usepackage{hyperref}
 %\usepackage{cite}
 %%-----------------------------------------------
-\usepackage{caption,tabularx,booktabs, multirow, array}
+\usepackage{caption,subcaption,tabularx,booktabs, multirow, array}
 \usepackage[table]{xcolor}
 \definecolor{lightgray}{gray}{0.92}
 \usepackage{amsmath}
@@ -32,7 +32,7 @@
 \usepackage{csquotes}
 \bibliography{../refs.bib}
 %\bibliographystyle{plain}
-%\bibliography{refs}
+\bibliography{refs}
 \graphicspath{ {../plots/} }
 %%-----------------------------------------------
 \usepackage{fancyhdr}
@@ -63,18 +63,18 @@
 %\addto\shorthandsspanish{\let\esperiod\es@period@code}
 
 \def\clearpage{
-   \ifvmode
-      \ifnum \@dbltopnum =\m@ne
-         \ifdim \pagetotal <\topskip
-            \hbox{}
-         \fi
-      \fi
-   \fi
-   \newpage
-   \thispagestyle{empty}
-   \write\m@ne{}
-   \vbox{}
-   \penalty -\@Mi
+    \ifvmode
+        \ifnum \@dbltopnum =\m@ne
+            \ifdim \pagetotal <\topskip
+                \hbox{}
+            \fi
+        \fi
+    \fi
+    \newpage
+    \thispagestyle{empty}
+    \write\m@ne{}
+    \vbox{}
+    \penalty -\@Mi
 }
 \makeatother
 %%-----------------------------------------------
@@ -88,49 +88,49 @@
 
 \usepackage{listings}
 \lstset{ frame=Ltb,
-   framerule=0pt,
-   aboveskip=0.5cm,
-   framextopmargin=3pt,
-   framexbottommargin=3pt,
-   framexleftmargin=0.4cm,
-   framesep=0pt,
-   rulesep=.4pt,
-   backgroundcolor=\color{gray97},
-   rulesepcolor=\color{black},
-   %
-   stringstyle=\ttfamily,
-   showstringspaces = false,
-   basicstyle=\scriptsize\ttfamily,
-   commentstyle=\color{gray45},
-   keywordstyle=\bfseries,
-   %
-   numbers=left,
-   numbersep=6pt,
-   numberstyle=\tiny,
-   numberfirstline = false,
-   breaklines=true,
+    framerule=0pt,
+    aboveskip=0.5cm,
+    framextopmargin=3pt,
+    framexbottommargin=3pt,
+    framexleftmargin=0.4cm,
+    framesep=0pt,
+    rulesep=.4pt,
+    backgroundcolor=\color{gray97},
+    rulesepcolor=\color{black},
+    %
+    stringstyle=\ttfamily,
+    showstringspaces = false,
+    basicstyle=\scriptsize\ttfamily,
+    commentstyle=\color{gray45},
+    keywordstyle=\bfseries,
+    %
+    numbers=left,
+    numbersep=6pt,
+    numberstyle=\tiny,
+    numberfirstline = false,
+    breaklines=true,
 }
 \lstnewenvironment{listing}[1][]
 {\lstset{#1}\pagebreak[0]}{\pagebreak[0]}
 
 \lstdefinestyle{consola}
 {basicstyle=\scriptsize\bf\ttfamily,
-   backgroundcolor=\color{gray75},
+    backgroundcolor=\color{gray75},
 }
 
 \lstdefinestyle{CodigoC}
 {basicstyle=\scriptsize,
-   frame=single,
-   language=C,
-   numbers=left
+    frame=single,
+    language=C,
+    numbers=left
 }
 
 \lstdefinestyle{CodigoC++}
 {basicstyle=\small,
-   frame=single,
-   backgroundcolor=\color{gray75},
-   language=C++,
-   numbers=left
+    frame=single,
+    backgroundcolor=\color{gray75},
+    language=C++,
+    numbers=left
 }
 
 \lstdefinestyle{Python}

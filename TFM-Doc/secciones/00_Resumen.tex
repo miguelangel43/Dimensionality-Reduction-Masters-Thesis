@@ -1,22 +1,47 @@
 \chapter*{Summary}
 
 % Introduction to Dimensionality Reduction
+Dimensionality reduction is the transformation of data from a high-dimensional space into a low-dimensional space so that the low-dimensional space retains the essential information of the data. It aims to overcome the curse of dimensionality, which refers to the challenges posed by high-dimensional data, such as increased computational complexity, the risk of overfitting, and, especially, the reduction of explainability.
 
-% Summary of the introduction to Dimensionality Reduction Techniques from next chapter
+% Introduction of XAI
+The reduction of explainability is addressed by the field of Explainable Artificial Intelligence (XAI), which focuses on understanding machine learning models and explaining them in human and understandable terms. Combining XAI and dimensionality reduction, this thesis presents a method of explaining principal components based on their correlations to the input features.
 
-% SLMVP
-SLMVP as a supervised local technique, has a great advantage over the other techniques.
+% What was done
+% Fine-tuning parameters in ML pipeline
+First, the dimensionality of the data was reduced using state-of-the-art dimensionality reduction techniques such as SLMVP. These reduction techniques were combined with different machine learning classifiers to fine-tune their parameters. The objective was to identify the optimal configuration that achieves the highest accuracy with the given data.
+% Selecting the number of components
+The accuracy obtained with only the first $k$ components is measured for different values of $k$. A recommendation is then given as to the number of components that should be kept.
 
-% Introduction to interpreting coefficients
-Since the new dimensions found by the techniques are the directions of maximum variability of the data, by computing the correlation between the original data and each of the components, we can draw meaningful qualitative information about the components. The variables that are most strongly correlated with each component will be the ones that the technique deems as more significant.
+% 2D and 3D Scatterplots to find insights about the data
+Second, the performance of the techniques in capturing and preserving the structure of the original dataset is analyzed by plotting their projections in 2 and 3-dimensional plots. We look into whether the data points are evenly distributed or not, this shows how effectively the technique has managed to capture the overall variance of the dataset, and whether the graph exhibits a clear separation of the different classes. This, paired with the accuracy obtained in the previous classification task, tells us about the goodness of the technique.
+% Multilabel
+Furthermore, we show that among the supervised dimensionality reduction techniques evaluated, SLMVP stands out as the sole method capable of effectively handling multilabel datasets.
 
-Furthermore, we can compare two components obtained with two different dimensionality reduction techniques on basis of their interpretability. We can do this by calculating the spearman correlation coefficient of the absolute correlation between the components.
+% Correlations
+Finally, the correlations between the original data and each one of the components obtained through dimensionality reduction  are leveraged to extract meaningful qualitative information. This is based on the fact that the components are the directions of maximum variability of the data and it is fair to assume that the variables that have a high absolute correlation with a component are given a high significance by the dimensionality reduction technique.
+% Selecting the features
+A recommendation is then given as to which features should be selected for a posterior machine learning task, based on their absolute correlation with the components.
 
-% Classification
-In this work, a brief evaluation of the techniques on basis of their classification results is also offered. A handful of machine learning classifiers are trained on the data to see how SLMVP and other techniques compare in a classification task.
+% Comparing techniques
+In addition, the correlations are also leveraged to compare the similarity and dissimilarity of components realized by applying different techniques. This is done by calculating the spearman correlation coefficient of the absolute correlation between two components, obtaining a similarity score. Observations are then made about the similarity of techniques and the techniques that stand out as unique.
 
-% SLMVP
-The results show that SLMVP can more meaningfully separate the data into clusters based on the values of the dependent variable. This makes for more visually impactful 2-dimension plots, with cluster that are more clearly separated than when using other techniques. Moreover, SLMVP is more robust than other techniques that perform on par.
+% Brief Conclusion about what the results show
+The results show... %TODO
+
+% % SLMVP
+% SLMVP as a supervised local technique, has a great advantage over the other techniques.
+
+% % Introduction to interpreting coefficients
+% Since the new dimensions found by the techniques are the directions of maximum variability of the data, by computing the correlation between the original data and each of the components, we can draw meaningful qualitative information about the components. The variables that are most strongly correlated with each component will be the ones that the technique deems as more significant.
+
+% Furthermore, we can compare two components obtained with two different dimensionality reduction techniques on basis of their interpretability. We can do this by calculating the spearman correlation coefficient of the absolute correlation between the components.
+
+% % Classification
+% In this work, a brief evaluation of the techniques on basis of their classification results is also offered. A handful of machine learning classifiers are trained on the data to see how SLMVP and other techniques compare in a classification task.
+
+% % SLMVP
+% The results show that SLMVP can more meaningfully separate the data into clusters based on the values of the dependent variable. This makes for more visually impactful 2-dimension plots, with cluster that are more clearly separated than when using other techniques. Moreover, SLMVP is more robust than other techniques that perform on par.
+
 
 %%--------------
 \newpage
@@ -24,8 +49,23 @@ The results show that SLMVP can more meaningfully separate the data into cluster
 
 \chapter*{Abstract}
 
-<<Abstract of the Master Project. Maximum length: 2 pages.>>
-
+% Introduction to Dimensionality Reduction
+Dimensionality reduction is the transformation of data from a high-dimensional space into a low-dimensional space so that the low-dimensional space retains the essential information of the data. It aims to overcome the curse of dimensionality, which refers to the challenges posed by high-dimensional data, such as increased computational complexity, the risk of overfitting, and, especially, the reduction of explainability.
+% Introduction of XAI
+This last challenge is addressed by the field of Explainable Artificial Intelligence (XAI), which focuses on understanding machine learning models and explaining them in human and understandable terms. Combining XAI and dimensionality reduction, this thesis presents a method of explaining principal components based on their correlations to the input features.
+% What was done
+% Fine-tuning parameters in ML pipeline
+First, the dimensionality of the data was reduced using state-of-the-art dimensionality reduction techniques such as SLMVP. These reduction techniques were combined with different machine learning classifiers to fine-tune their parameters.
+% 2D and 3D Scatterplots to find insights about the data
+Second, the performance of the techniques in capturing and preserving the structure of the original dataset is analyzed by plotting their projections in 2 and 3-dimensional plots.
+% Multilabel
+Furthermore, we show that among the supervised dimensionality reduction techniques evaluated, SLMVP stands out as the sole method capable of effectively handling multilabel datasets.
+% Correlations
+Finally, the correlations between the original data and each one of the components obtained through dimensionality reduction  are leveraged to extract meaningful qualitative information about the reduced-dimensional space.
+% Comparing techniques
+The correlations are also leveraged to compare the similarity and dissimilarity of components realized by applying different techniques, by calculating the spearman correlation coefficient of the absolute correlation between two components, obtaining a similarity score.
+% Brief Conclusion about what the results show
+The results show... % TODO
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Final del resumen. 

@@ -46,39 +46,39 @@
 \begin{table}
     \begin{tabular}{llllr}
         \toprule
-        {}         & Dim. Technique & Dim. Params        & Model         & Accuracy \\
-        Dimensions &                &                    &               &          \\
+        {}                                      & Dim. Technique & Dim. Params        & Model         & Accuracy \\
+        Dimensions                              &                &                    &               &          \\
         \midrule
-        1          & SLMVP          & Linear             & KNN           & 0.86     \\
-        1          & LOL            &                    & Naive Bayes   & 0.85     \\
-        1          & KPCA           & Linear             & LDA           & 0.83     \\
-        1          & PCA            &                    & LDA           & 0.83     \\
-        1          & LLE            & k=30-reg=0.001     & AdaBoost      & 0.54     \\
-        1          & LPP            & k=5                & KNN           & 0.50     \\
-        2          & SLMVP          & Radial-Gammas=0.1  & XGBoost       & 0.96     \\
-        2          & LPP            & k=5                & Random Forest & 0.90     \\
-        2          & LOL            &                    & KNN           & 0.89     \\
-        2          & KPCA           & Linear             & Decision Tree & 0.84     \\
-        2          & PCA            &                    & Decision Tree & 0.84     \\
-        2          & LLE            & k=30-reg=0.001     & Random Forest & 0.58     \\
-        3          & SLMVP          & Radial-Gammas=0.1  & XGBoost       & 0.96     \\
-        3          & KPCA           & Linear             & SVM           & 0.93     \\
-        3          & LPP            & k=5                & SVM           & 0.93     \\
-        3          & PCA            &                    & KNN           & 0.93     \\
-        3          & LOL            &                    & KNN           & 0.89     \\
-        3          & LLE            & k=30-reg=0.001     & SVM           & 0.85     \\
-        4          & SLMVP          & Radial-Gammas=0.01 & Random Forest & 0.96     \\
-        4          & LPP            & k=5                & XGBoost       & 0.94     \\
-        4          & KPCA           & Linear             & SVM           & 0.90     \\
-        4          & PCA            &                    & SVM           & 0.90     \\
-        4          & LOL            &                    & SVM           & 0.89     \\
-        4          & LLE            & k=30-reg=0.001     & SVM           & 0.84     \\
-        5          & SLMVP          & Radial-Gammas=0.1  & SVM           & 0.95     \\
-        5          & LLE            & k=30-reg=0.001     & SVM           & 0.94     \\
-        5          & LOL            &                    & XGBoost       & 0.91     \\
-        5          & LPP            & k=5                & KNN           & 0.91     \\
-        5          & KPCA           & Linear             & SVM           & 0.89     \\
-        5          & PCA            &                    & SVM           & 0.89     \\
+                                                & SLMVP          & Linear             & KNN           & 0.86     \\
+                                                & LOL            &                    & Naive Bayes   & 0.85     \\
+                                                & KPCA           & Linear             & LDA           & 0.83     \\
+                                                & PCA            &                    & LDA           & 0.83     \\
+                                                & LLE            & k=30-reg=0.001     & AdaBoost      & 0.54     \\
+        \multirow{-6}{*}{1}                     & LPP            & k=5                & KNN           & 0.50     \\
+        \rowcolor{lightgray}                    & SLMVP          & Radial-Gammas=0.1  & XGBoost       & 0.96     \\
+        \rowcolor{lightgray}                    & LPP            & k=5                & Random Forest & 0.90     \\
+        \rowcolor{lightgray}                    & LOL            &                    & KNN           & 0.89     \\
+        \rowcolor{lightgray}                    & KPCA           & Linear             & Decision Tree & 0.84     \\
+        \rowcolor{lightgray}                    & PCA            &                    & Decision Tree & 0.84     \\
+        \rowcolor{lightgray}\multirow{-6}{*}{2} & LLE            & k=30-reg=0.001     & Random Forest & 0.58     \\
+                                                & SLMVP          & Radial-Gammas=0.1  & XGBoost       & 0.96     \\
+                                                & KPCA           & Linear             & SVM           & 0.93     \\
+                                                & LPP            & k=5                & SVM           & 0.93     \\
+                                                & PCA            &                    & KNN           & 0.93     \\
+                                                & LOL            &                    & KNN           & 0.89     \\
+        \multirow{-6}{*}{3}                     & LLE            & k=30-reg=0.001     & SVM           & 0.85     \\
+        \rowcolor{lightgray}                    & SLMVP          & Radial-Gammas=0.01 & Random Forest & 0.96     \\
+        \rowcolor{lightgray}                    & LPP            & k=5                & XGBoost       & 0.94     \\
+        \rowcolor{lightgray}                    & KPCA           & Linear             & SVM           & 0.90     \\
+        \rowcolor{lightgray}                    & PCA            &                    & SVM           & 0.90     \\
+        \rowcolor{lightgray}                    & LOL            &                    & SVM           & 0.89     \\
+        \rowcolor{lightgray}\multirow{-6}{*}{4} & LLE            & k=30-reg=0.001     & SVM           & 0.84     \\
+                                                & SLMVP          & Radial-Gammas=0.1  & SVM           & 0.95     \\
+                                                & LLE            & k=30-reg=0.001     & SVM           & 0.94     \\
+                                                & LOL            &                    & XGBoost       & 0.91     \\
+                                                & LPP            & k=5                & KNN           & 0.91     \\
+                                                & KPCA           & Linear             & SVM           & 0.89     \\
+        \multirow{-6}{*}{5}                     & PCA            &                    & SVM           & 0.89     \\
         \bottomrule
     \end{tabular}
 
@@ -96,27 +96,27 @@
                                                  & KPCA           & Linear             & Random Forest & 0.200    \\
                                                  & PCA            &                    & XGBoost       & 0.175    \\
                                                  & LOL            &                    & XGBoost       & 0.125    \\
-        \multirow{-3}{*}{1}                      & SLMVP          & Radial-Gammas=0.01 & Naive Bayes   & 0.125    \\
+        \multirow{-5}{*}{1}                      & SLMVP          & Radial-Gammas=0.01 & Naive Bayes   & 0.125    \\
         \rowcolor{lightgray}                     & KPCA           & Linear             & SVM           & 0.750    \\
         \rowcolor{lightgray}                     & LLE            & k=18-reg=0.001     & SVM           & 0.750    \\
         \rowcolor{lightgray}                     & PCA            &                    & SVM           & 0.750    \\
         \rowcolor{lightgray}                     & LOL            &                    & KNN           & 0.525    \\
-        \rowcolor{lightgray}\multirow{-3}{*}{3}  & SLMVP          & Polynomial-Order=5 & XGBoost       & 0.300    \\
+        \rowcolor{lightgray}\multirow{-5}{*}{3}  & SLMVP          & Polynomial-Order=5 & XGBoost       & 0.300    \\
                                                  & LOL            &                    & SVM           & 0.925    \\
                                                  & KPCA           & Linear             & SVM           & 0.900    \\
                                                  & PCA            &                    & SVM           & 0.900    \\
                                                  & LLE            & k=18-reg=0.001     & KNN           & 0.850    \\
-        \multirow{-3}{*}{5}                      & SLMVP          & Polynomial-Order=5 & Random Forest & 0.325    \\
+        \multirow{-5}{*}{5}                      & SLMVP          & Polynomial-Order=5 & Random Forest & 0.325    \\
         \rowcolor{lightgray}                     & KPCA           & Linear             & SVM           & 0.975    \\
         \rowcolor{lightgray}                     & LOL            &                    & SVM           & 0.975    \\
         \rowcolor{lightgray}                     & PCA            &                    & SVM           & 0.975    \\
         \rowcolor{lightgray}                     & LLE            & k=18-reg=0.001     & SVM           & 0.925    \\
-        \rowcolor{lightgray}\multirow{-3}{*}{15} & SLMVP          & Radial-Gammas=0.1  & Naive Bayes   & 0.750    \\
+        \rowcolor{lightgray}\multirow{-5}{*}{15} & SLMVP          & Radial-Gammas=0.1  & Naive Bayes   & 0.750    \\
                                                  & KPCA           & Linear             & SVM           & 1.000    \\
                                                  & LOL            &                    & LDA           & 1.000    \\
                                                  & PCA            &                    & SVM           & 1.000    \\
                                                  & LLE            & k=18-reg=0.001     & Random Forest & 0.950    \\
-        \multirow{-3}{*}{30}                     & SLMVP          & Radial-Gammas=0.1  & Naive Bayes   & 0.925    \\
+        \multirow{-5}{*}{30}                     & SLMVP          & Radial-Gammas=0.1  & Naive Bayes   & 0.925    \\
         \bottomrule
     \end{tabular}
     \caption{ORL Dataset}

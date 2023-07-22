@@ -37,8 +37,9 @@ KPCA aims to find a low-dimensional representation of the data while capturing t
 % PPT
 Let $\phi : \mathbb{R}^N \rightarrow F$ be a (nonlinear) map. We refer to $F$ as the feature space. The covariance matrix is then
 \begin{equation}
-    C = \frac{\phi(X)^T \phi(X)}{N}
+  C = \frac{\phi(X)^T \phi(X)}{N},
 \end{equation}
+where $N$ is the number of observations.
 
 Similar to PCA, the eigenvectors and eigenvalues of the covariance matrix are calculated. Denoting the eigenvectors as $V$ and the eigenvalues as $\lambda$, we have $C V = \lambda V$. The eigenvectors $V$.
 
@@ -49,10 +50,10 @@ KPCA offers several advantages over linear PCA. It can effectively capture nonli
 However, KPCA also comes with certain considerations. The choice of the kernel function and its associated parameters significantly impact the performance. Moreover, the computation of the kernel matrix can be computationally demanding because of the mapping to a higher-dimensional feature space.
 
 \begin{figure}
-    \centering
-    \includegraphics[width=0.5\textwidth]{kernel_pca.png}
-    \caption{Representation of the mapping function used in KPCA. \url{https://pdfs.semanticscholar.org/3f60/0e6c6cf93e78c9e6e690443d6d22c4bf18b9.pdf}}
-    \label{fig:kernel_pca}
+  \centering
+  \includegraphics[width=0.5\textwidth]{kernel_pca.png}
+  \caption{Representation of the mapping function used in KPCA. \cite{kpca}}
+  \label{fig:kernel_pca}
 \end{figure}
 
 \subsection{Linear Optimal Low-Rank (LOL)}
@@ -82,7 +83,7 @@ The first step is to construct a similarity matrix $W$ that encodes the pairwise
 Given $W$, the goal is to find a projection matrix $\mathbf{P}$ that maps the data points into a lower-dimensional space. This is achieved by solving the generalized eigenvalue problem:
 
 \begin{equation} \label{eq:1}
-    X \mathbf{L} X^T a = \lambda XDX^Ta,
+  X \mathbf{L} X^T a = \lambda XDX^Ta,
 \end{equation}
 
 where $\mathbf{L} = D-W$ is the Laplacian matrix. The matrix $\mathbf{P}$ consists of the eigenvectors corresponding to the smallest eigenvalues of equation \ref{eq:1}, representing the lower-dimensional representation of the data.
@@ -91,17 +92,17 @@ LPP offers several advantages over traditional dimensionality reduction techniqu
 
 However, LPP also has some considerations. The choice of the parameters when computing the similarity matrix (e.g. the number of neighbors $k$ if k-neares neighbors is used) can significantly change the result of applying LPP.
 
-\subsection{Locally Linear Embedding (LLE)} %rewrite
+\subsection{Locally Linear Embedding (LLE)}
 
 Locally Linear Embedding (LLE) \cite{lle} is a powerful nonlinear dimensionality reduction technique that aims to preserve the local structure of the data in a lower-dimensional space. LLE, introduced by Sam T. Roweis and Lawrence K. Saul in 2000, has gained significant attention in various fields, including computer vision, data visualization, and manifold learning.
 
 LLE addresses the limitations of linear projection methods by assuming that the data lies on a low-dimensional manifold that can be "unfolded". It seeks to find a representation of the data in a lower-dimensional space while preserving the local relationships between neighboring data points. By doing so, LLE is capable of capturing the underlying nonlinear structure of the data.
 
 \begin{figure}
-    \centering
-    \includegraphics[width=0.7\textwidth]{lle_manifold.png}
-    \caption{Illustration of the problem of nonlinear dimensionality reduction.}
-    \label{fig:lle_manifold}
+  \centering
+  \includegraphics[width=0.7\textwidth]{lle_manifold.png}
+  \caption{Illustration of the problem of nonlinear dimensionality reduction.}
+  \label{fig:lle_manifold}
 \end{figure}
 
 Mathematically, let $X$ be an $n \times m$ data matrix, where each row corresponds to a sample and each column represents a feature. LLE involves three key steps: local reconstruction, weight determination, and global embedding.
@@ -110,26 +111,26 @@ The first step is local reconstruction, where for each data point $x_i$, the nei
 
 The weight determination step involves solving the optimization problem to find the optimal weights. This can be done by minimizing the residual sum of squares.
 \begin{equation}
-    RSS(W) = \sum^n_{i=1} |X_i - \sum_{j \neq i} w_{ij} X_j|^2
+  RSS(W) = \sum^n_{i=1} |X_i - \sum_{j \neq i} w_{ij} X_j|^2
 \end{equation}
 It holds $\sum_j W_{ij} = 1$, and $W_{ij} = 0$ if $X_j$ is not part of the neighborhood of $X_i$.
 
 Finally, the global embedding step aims to find the low-dimensional representation of the data. This is achieved by, once again, minimizing the residual sum of squares but using the new weights to find the low-dimensional representation of the data points $Y$.
 \begin{equation}
-    \Phi(Y) = \sum^n_{i=1} |y_i - \sum_{j\neq i}w_{ij}Y_j|^2,
+  \Phi(Y) = \sum^n_{i=1} |y_i - \sum_{j\neq i}w_{ij}Y_j|^2,
 \end{equation}
 where $\sum_i Y_{ij} = 0$, so that the data points are centered on the origin and subject to $Y Y^T = I$
 
 The previous equation can me rewritten in its matrix multiplication form as
 \begin{multline}
-    \sum^n_{i=1} |y_i - \sum_{j \neq i} w_{ij} Y_j |^2 = \sum_i y_i^2 - y_i (\sum_j w_{ij}y_j) - (\sum_j w_{ij}y_j)y_i + (\sum_j w_{ij}y_j)^2 \\
-    = Y^T T - Y^T (WY) - (WY)^T Y + (WY)^T (WY) \\
-    = Y^T (I - W)^T (I-W)Y \\
-    = Y^T M Y, \\
+  \sum^n_{i=1} |y_i - \sum_{j \neq i} w_{ij} Y_j |^2 = \sum_i y_i^2 - y_i (\sum_j w_{ij}y_j) - (\sum_j w_{ij}y_j)y_i + (\sum_j w_{ij}y_j)^2 \\
+  = Y^T T - Y^T (WY) - (WY)^T Y + (WY)^T (WY) \\
+  = Y^T (I - W)^T (I-W)Y \\
+  = Y^T M Y, \\
 \end{multline}
 and after applying Lagrange multipliers, the minimization obtained by solving the following eigenvalue problem.
 \begin{equation} \label{eq:2}
-    MY = \alpha Y
+  MY = \alpha Y
 \end{equation}
 The projection matrix $\mathbf{P}$ consists of the eigenvectors corresponding to the smallest eigenvalues of equation \ref{eq:2}, representing the lower-dimensional representation of the data.
 
@@ -138,7 +139,7 @@ LLE offers several advantages over linear projection methods. By preserving the 
 However, LLE also has some considerations. The choice of the number of neighbors and the neighborhood size significantly impact the performance of LLE.
 
 \subsection{Supervised Local Variance Maximum Preserving (SLMVP)}
-Supervised Local Variance Maximum Preserving (SLMVP) \cite{slmvp} is a dimensionality reduction technique that preserves the maximum local variance, and considers the distribution of the data by the response variable. SLMVP, proposed by Esteban García Cuesta et al., solves the "large p, small m" problem.
+Supervised Local Variance Maximum Preserving (SLMVP) \cite{slmvp}\cite{slmvp1}, proposed by García-Cuesta is a dimensionality reduction technique that preserves the maximum local variance, and considers the distribution of the data by the response variable. SLMVP solves the "large p, small m" problem.
 
 Mathematically, let $x_1, x_2, ..., x_m \in \mathfrak{R}^p$ be a set of inputs and $y_1, y_2, ..., y_m \in \mathfrak{R}^l$, where $m$ denotes the sample size, and $p$ and $l$ the number of input and output features respectively. SLMVP involves two key steps: constructing a similarity graph, and the unsupervised dimensionality reduction problem.
 
@@ -147,38 +148,38 @@ The first step, consists in the application of the similarity function $\mathscr
 The second step consist in solving the unsupervised dimensionality reduction problem, which aims to choose the mapping $y'_i = A^T x_i : y'_i \in \mathfrak{R}^k$ that minimizes the distance between neighbors in a multidimensional space. This can be expressed by the following cost function:
 
 \begin{equation}\label{cost_1}
-    J_{ns} = \frac{1}{2} \sum_{ij} || y'_i - y'_j || w_{ij},
+  J_{ns} = \frac{1}{2} \sum_{ij} || y'_i - y'_j || w_{ij},
 \end{equation}
 
 where $w_{ij}$ are the elements of matrix $W \in \mathfrak{R}^{m \times m}$, which is the similarity matrix $\mathscr{S}(X)$.
 SLMVP solves the unsupervised dimensionality reduction problem  by choosing the mapping that  minimizes the distance between neighbors, preserving only those that are shared in the input and output spaces. The cost function \ref{cost_1} is then extended to be
 
 \begin{equation}
-    J_{ns} = \frac{1}{2} \sum_{ij} || y'_i - y'_j || z_{ij},
+  J_{ns} = \frac{1}{2} \sum_{ij} || y'_i - y'_j || z_{ij},
 \end{equation}
 
 where $z_{ij}$ are the elements of matrix $Z \in \mathfrak{R}^{m \times m}$, which represents the joint similarity matrix between input and output similarity matrices, being $z_{ij} = \sum^m_{k=1} u_{ik}v_{kj}$. This minimization can also be expressed in its kernelization form as the following maximization problem:
 
 \begin{equation}
-    \max tr(Y^T K_X K_Y Y)
+  \max tr(Y^T K_X K_Y Y)
 \end{equation}
 
 where $K_X = \mathscr{S}_X(X)$ and $K_Y \mathscr{S}_Y(Y)$ are the input and output similarity graphs represented as kernel functions. The maximization of the trace can be solved as the following eigenvector problem:
 
 \begin{equation}
-    X K_X K_Y X^T B = \lambda B
+  X K_X K_Y X^T B = \lambda B
 \end{equation}
 
-where $B$ is the new reduced space.
+where $B$ is the new transformed space.
 
 \section{Discarding Features}
 
 Rejecting variables in machine learning involves carefully evaluating and deciding which features to exclude from the modeling process. I.T. Jolliffe \cite{b2b4} examined some of the possible methods for deciding which variables to reject using principal component analysis. He introduced various methods, among which B1, B2, and B4 stand out as particularly relevant and significant.
 
 \begin{itemize}
-    \item \textbf{B1}. First, principal component analysis is performed on the original $K$ features. Then, the $p_1$ worse eigenvectors with eigenvalues less than a threshold $\lambda_0$ are considered. The features that correspond to the highest coefficient of these eigenvectors are then rejected, remaining $K-p_1$ features. This process is then repeated and the feature set is further reduced until all the computed eigenvalues are less than the threshold $\lambda_0$. At the end, $K - p_1 - p_2 - ... p_l = p$ variables will remain. The number of rejected features will depend on the choice of $\lambda_0$. B1 is very slow, as PCA has to be performed at every iteration.
-    \item \textbf{B2}. B2 is the same as B1 except that only one iteration is done.
-    \item \textbf{B4}. B4 can be thought of as a backward version of B1. Here, the $K-p_1$ best eigenvectors with the eigenvalues greater than the threshold $\lambda_0$ are considered, and the features that correspond to the highest coefficient of these eigenvectors remain, rejecting the rest.
+  \item \textbf{B1}. First, principal component analysis is performed on the original $K$ features. Then, the $p_1$ worse eigenvectors with eigenvalues less than a threshold $\lambda_0$ are considered. The features that correspond to the highest coefficient of these eigenvectors are then rejected, remaining $K-p_1$ features. This process is then repeated and the feature set is further reduced until all the computed eigenvalues are less than the threshold $\lambda_0$. At the end, $K - p_1 - p_2 - ... p_l = p$ variables will remain. The number of rejected features will depend on the choice of $\lambda_0$. B1 is very slow, as PCA has to be performed at every iteration.
+  \item \textbf{B2}. B2 is the same as B1 except that only one iteration is done.
+  \item \textbf{B4}. B4 can be thought of as a backward version of B1. Here, the $K-p_1$ best eigenvectors with the eigenvalues greater than the threshold $\lambda_0$ are considered, and the features that correspond to the highest coefficient of these eigenvectors remain, rejecting the rest.
 \end{itemize}
 
 I.T. Jolliffe tests the methods on artificially-generated data with redundant features. He shows that several of the rejection methods discard precisely the variables known to be redundant, for all but a few sets of data.
@@ -197,18 +198,18 @@ In artificial intelligence, interpretability and explainability are two related 
 XAI overcomes several challenges that increasingly complex models face, such as debugging, understanding, and controlling them effectively. XAI seeks to overcome these issues by providing transparency, trustworthiness, and facilitating error detection. Furthermore, XAI is very relevant in the detection and mitigation of biases, and  the compliance with regulators and ethical standards.
 
 \begin{figure}[!ht]
-    \centering
-    \includegraphics[width=0.5\textwidth]{ai_dog.jpg}
-    \caption{Example of explainable artificial intelligence in image recognition. It shows which regions contributed to the model's prediction of this image as a husky \url{https://cloud.google.com/blog/products/ai-machine-learning/explaining-model-predictions-on-image-data}}
-    \label{fig:ai_dog}
+  \centering
+  \includegraphics[width=0.5\textwidth]{ai_dog.jpg}
+  \caption{Example of explainable artificial intelligence in image recognition. It shows which regions contributed to the model's prediction of this image as a husky. \cite{xai_pic}}
+  \label{fig:ai_dog}
 \end{figure}
 
 The field of Explainable Artificial Intelligence (XAI) is continuously evolving, and several state-of-the-art techniques have been developed to enhance the explainability of AI models. Here are a few notable advancements:
 
 \begin{itemize}
-    \item \textbf{Local Interpretable Model-Agnostic Explanations \cite{lime} (LIME)}: LIME is a model-agnostic method that explains the predictions of any black-box model by creating a surrogate interpretable model. It modifies the input data and observes the effect on the model's output, generating explanations for specific instances.
-    \item \textbf{SHapley Additive exPlanations \cite{shap} (SHAP)}: SHAP values are based on cooperative game theory and aim to allocate the "credit" or contribution of each feature in a prediction. SHAP provides a unified framework for interpreting the output of a wide range of models, including deep neural networks.
-    \item \textbf{Integrated Gradients \cite{integrated_gradients}}: This method assigns importance scores to input features by integrating gradients along a path from a baseline input to the input of interest. It quantifies how each feature contributes to the prediction and has been applied to explain deep learning models.
+  \item \textbf{Local Interpretable Model-Agnostic Explanations \cite{lime} (LIME)}: LIME is a model-agnostic method that explains the predictions of any black-box model by creating a surrogate interpretable model. It modifies the input data and observes the effect on the model's output, generating explanations for specific instances.
+  \item \textbf{SHapley Additive exPlanations \cite{shap} (SHAP)}: SHAP values are based on cooperative game theory and aim to allocate the "credit" or contribution of each feature in a prediction. SHAP provides a unified framework for interpreting the output of a wide range of models, including deep neural networks.
+  \item \textbf{Integrated Gradients \cite{integrated_gradients}}: This method assigns importance scores to input features by integrating gradients along a path from a baseline input to the input of interest. It quantifies how each feature contributes to the prediction and has been applied to explain deep learning models.
 \end{itemize}
 
 It is important to note that the effectiveness of these techniques may vary depending on the application domain, the specific AI model used, and the requirements of the end-users. The field of XAI is still rapidly evolving, and researchers are continuously working on developing more sophisticated and reliable methods to enhance the transparency and interpretability of AI systems.

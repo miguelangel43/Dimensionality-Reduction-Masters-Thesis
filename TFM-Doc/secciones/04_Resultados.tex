@@ -47,7 +47,7 @@ Table \ref{tab:artificial-dataset} presents the results obtained from evaluating
     \label{fig:art_line_chart}
 \end{figure}
 
-For 2, 3, 4, and 5 dimensions, SLMVP, PCA and KPCA demonstrate the best performance among the tested dimensionality reduction techniques. They achieve an accuracy of 96\% in 2 dimensions and are able to correctly classify all the samples with 3 dimensions or more. Both SLMVP and KPCA achieve these results in their linear configurations, paired with the LLA classifier or K-Nearest Neighbors.
+For 2, 3, 4, and 5 dimensions, SLMVP, PCA and KPCA demonstrate the best performance among the tested dimensionality reduction techniques. They achieve an accuracy of 96\% in 2 dimensions and are able to correctly classify all the samples with 3 dimensions or more. Both SLMVP and KPCA achieve these results in their linear configurations, paired with the LDA classifier or K-Nearest Neighbors.
 However, LLE emerges as the winner when only 1 dimension is allowed in the classification task. It achieves a 90\% accuracy paired with the XGBoost classifier, much higher than the second-best performing, which is KPCA with a 63\% accuracy.
 
 Overall, SLMVP, KPCA and PCA demonstrate to be the most promising dimensionality reduction technique, especially when the classification task is not restricted to just 1 dimension. However, it is interesting to see how the results would change when applying the dimensionality reduction techniques to a real-world dataset.
@@ -117,20 +117,22 @@ Figure \ref{fig:2D_multilabel} shows the reduced-dimensional representation of a
 
 \subsubsection{Choosing Features and Components}
 
+We can leverage the calculated absolute correlations to select the features that should be kept for a posterior machine learning task. Figure \ref{fig:hbar-artificial} shows the 20 features with the highest absolute correlations with the first component, in the case of the first subplot, and the average of the first 5 components, in the case of the second subplot. For the 1 component, the first three features stand out with correlations higher than 50\%. For this artificially-generated data, the correlations follow a smooth curve and it is difficult to determine how many features to reject. Thresholds of $0.2$ and $0.15$ for the first and second subplots respectively are reasonable.
+
 \begin{figure}[!ht]
     \centering
     \begin{subfigure}{.5\textwidth}
         \centering
         \includegraphics[width=.9\linewidth]{hbar_artificial.png}
-        \caption{A subfigure}
+        \caption{1 Component}
     \end{subfigure}%
     \begin{subfigure}{.5\textwidth}
         \centering
         \includegraphics[width=.9\linewidth]{hbar_artificial_5dim.png}
-        \caption{A subfigure}
+        \caption{5 Components}
     \end{subfigure}
-    \caption{Original features of the dataset ordered by their correlation to the components obtained with SLMVP with radial kernel and gamma values 0.1.}
-    \label{fig:test}
+    \caption{Original features of the artificially-generated dataset ordered by their correlation to the components obtained with SLMVP with radial kernel and gamma values 0.1.}
+    \label{fig:hbar-artificial}
 \end{figure}
 
 
@@ -138,30 +140,31 @@ Figure \ref{fig:2D_multilabel} shows the reduced-dimensional representation of a
 
 \subsection{Classification Results}
 
-In this section, we assess and compare different techniques for reducing the dimensionality of the FIFA dataset introduced in section \ref{section:fifa-dataset}. Our goal is to identify the techniques that provide the best results in terms of reducing the dataset's complexity. We present the evaluation results in Table \ref{tab:fifa-dataset}, which ranks the techniques based on their accuracy. The table shows the best-performing techniques at the top, and the order goes down from there.
+We assess and compare different techniques for reducing the dimensionality of the FIFA dataset introduced in section \ref{section:fifa-dataset}. We present the evaluation results in Table \ref{tab:fifa-dataset}, which ranks the techniques based on their accuracy.
+SLMVP is the clear winner for this dataset. It achieves a higher accuracy than the other techniques for all the numbers of dimensions tested in its radial kernel configuration.
 
 % Classification Table
 \begin{table}[!ht]
     \begin{tabular}{llllr}
         \toprule
-        {}                                      & Dim. Technique & Dim. Params       & Model         & Accuracy \\
-        Dimensions                              &                &                   &               &          \\
+        {}                                      & Dim. Technique & Dim. Params        & Model         & Accuracy \\
+        Dimensions                              &                &                    &               &          \\
         \midrule
-                                                & LLE            & k=81-reg=0.001    & Random Forest & 0.889041 \\
-                                                & SLMVP          & Linear            & KNN           & 0.871233 \\
-        \multirow{-3}{*}{1}                     & LOL            &                   & LDA           & 0.846575 \\
-        \rowcolor{lightgray}                    & SLMVP          & Radial-Gammas=0.1 & Decision Tree & 0.931507 \\
-        \rowcolor{lightgray}                    & LLE            & k=81-reg=0.001    & Random Forest & 0.895890 \\
-        \rowcolor{lightgray}\multirow{-3}{*}{2} & LOL            &                   & Random Forest & 0.876712 \\
-                                                & SLMVP          & Radial-Gammas=0.1 & KNN           & 0.934247 \\
-                                                & LLE            & k=81-reg=0.001    & XGBoost       & 0.932877 \\
-        \multirow{-3}{*}{3}                     & PCA            &                   & XGBoost       & 0.906849 \\
-        \rowcolor{lightgray}                    & LLE            & k=81-reg=0.001    & XGBoost       & 0.946575 \\
-        \rowcolor{lightgray}                    & SLMVP          & Radial-Gammas=0.1 & LDA           & 0.931507 \\
-        \rowcolor{lightgray}\multirow{-3}{*}{4} & LPP            & k=5               & KNN           & 0.910959 \\
-                                                & LLE            & k=81-reg=0.001    & XGBoost       & 0.949315 \\
-                                                & SLMVP          & Radial-Gammas=0.1 & Random Forest & 0.932877 \\
-        \multirow{-3}{*}{5}                     & LPP            & k=5               & KNN           & 0.923288 \\
+                                                & SLMVP          & Linear             & KNN           & 0.86     \\
+                                                & LOL            &                    & Naive Bayes   & 0.85     \\
+        \multirow{-3}{*}{1}                     & KPCA           & Linear             & LDA           & 0.83     \\
+        \rowcolor{lightgray}                    & SLMVP          & Radial-Gammas=0.1  & XGBoost       & 0.96     \\
+        \rowcolor{lightgray}                    & LPP            & k=5                & Random Forest & 0.90     \\
+        \rowcolor{lightgray}\multirow{-3}{*}{2} & LOL            &                    & KNN           & 0.89     \\
+                                                & SLMVP          & Radial-Gammas=0.1  & XGBoost       & 0.96     \\
+                                                & KPCA           & Linear             & SVM           & 0.93     \\
+        \multirow{-3}{*}{3}                     & LPP            & k=5                & SVM           & 0.93     \\
+        \rowcolor{lightgray}                    & SLMVP          & Radial-Gammas=0.01 & Random Forest & 0.96     \\
+        \rowcolor{lightgray}                    & LPP            & k=5                & XGBoost       & 0.94     \\
+        \rowcolor{lightgray}\multirow{-3}{*}{4} & KPCA           & Linear             & SVM           & 0.90     \\
+                                                & SLMVP          & Radial-Gammas=0.1  & SVM           & 0.95     \\
+                                                & LLE            & k=30-reg=0.001     & SVM           & 0.94     \\
+        \multirow{-3}{*}{5}                     & LOL            &                    & XGBoost       & 0.91     \\
         \bottomrule
     \end{tabular}
     \caption{Performance Comparison of Dimensionality Reduction Techniques on the FIFA dataset. (See Annex Table \ref{annex-tab:fifa-dataset}) for full results.}
@@ -175,7 +178,6 @@ In this section, we assess and compare different techniques for reducing the dim
     \caption{This figure shows how the accuracy of the best-performing model for each dimensionality reduction technique, evolves as the number of dimensions is increased.}
     \label{fig:fifa_line_chart}
 \end{figure}
-
 
 \subsection{Explanation}
 
@@ -217,8 +219,8 @@ By looking at the scatter plots created by the different techniques in figure \r
 The heatmap in Figure \ref{fig:heatmap-fifa} visually represents the similarity and dissimilarity between different dimensionality reduction techniques based on their Spearman rank correlation coefficients. The correlation coefficients are calculated by measuring the absolute correlations between the data in the reduced space from each technique and the original data. Higher correlation coefficients indicate a stronger resemblance between the reduced-dimensional representations obtained using 2 dimensionality reduction techniques. We can make the following observations:
 
 \begin{itemize}
-    \item SLMVP is most strongly-correlated with LPP and LOL, although this correlation is only moderate, below 60\%. The correlation with LPP could be due to the fact that both SLMVP and LPP are local and therefore incorporate neighborhood information of the dataset. On the other hand, the correlation with LOL could be due to another property that both SLMVP and LOL posses, the fact that both are supervised and therefore incorporate information about the dependent variable.
-    \item The strongest correlation over all is between PCA and LOL with 96\%, and the lowest between LLE and LOL with 10\%.
+    \item SLMVP is most strongly-correlated with LPP, KPCA and LOL, although this correlation is only moderate, below 60\%. The correlation with LPP could be due to the fact that both SLMVP and LPP are local and therefore incorporate neighborhood information of the dataset. On the other hand, the correlation with LOL could be due to another property that both SLMVP and LOL posses, the fact that both are supervised and therefore incorporate information about the dependent variable. Finally, SLMVP and KPCA both use radial kernels.
+    \item The strongest correlation over all is between PCA and LOL with 94\%, and the lowest between KPCA and PCA with 13\%.
 \end{itemize}
 
 \subsubsection{Explaining Components}
@@ -246,70 +248,66 @@ By looking at the spider plots created by the different techniques in Figure \re
 % 2D -  Spider
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.8\textwidth]{slmvp_2d_spider.png}
+    \includegraphics[width=0.7\textwidth]{slmvp_2d_spider.png}
     \caption{Visualization of the average correlation of the first two components with the features grouped by skill set.}
     \label{fig:2d_spider_fifa}
 \end{figure}
 
-% TODO: Insights
-Now we select the results of \textit{SLMVP Radial-Gammas=0.01} in order to give detailed explanations of their components. Figure \ref{fig:2d_spider_fifa} shows side-by-side a scatterplot with the data points projected into the first 2 components, and a spider plot that conveys how these two components relate to the original features of the dataset. The following insights are drawn:
+Now we select the results of \textit{SLMVP Radial-Gammas=0.01} in order to give detailed explanations of their components. Figure \ref{fig:2d_spider_fifa} shows side-by-side a scatterplot with the data points projected into the first 2 components, and a spider plot that conveys how these two components relate to the original features of the dataset. Figure \ref{fig:hbar-fifa-neg} shows the correlations of the first and second component with the original features.
+
+The following insights are drawn:
 
 \begin{itemize}
     \item The first component is positively correlated with \textit{defending}. It separates the attackers from the defenders and midfielders. Attackers are shown to have less defending skills than the other groups.
     \item The second component is positively correlated with \textit{attacking} and \textit{skill}, and negatively correlated with \textit{defending}. It separates the defenders from the attackers and midfielders.
+    \item It is clear that attackers and defenders are separated by their defending and attacking skills. However the separation of midfielders with the other classes is not so straightforward.
+    \item The bar plot in Figure \ref{fig:hbar-fifa-neg} reveals that information. Besides being better at defending than attackers, midfielders are better at intercepting and making long passes. They are also better than defenders in their vision, positioning and long shots, whereas defenders are better than midfielders in heading accuracy and aggresiveness.
 \end{itemize}
-
-
-
-% \begin{table}[!ht]
-%     \begin{tabular}{lrr}
-%         \toprule
-%         {}        & SLMVP Component 1  & SLMVP Component 2  \\
-%         skill set &                    &                    \\
-%         \midrule
-%         attacking & \textbf{-0.128595} & \textbf{0.348037}  \\
-%         defending & \textbf{0.619712}  & \textbf{-0.651872} \\
-%         mentality & 0.015077           & 0.191322           \\
-%         movement  & 0.072015           & 0.316958           \\
-%         power     & -0.191797          & 0.094459           \\
-%         skill     & 0.146032           & 0.455555           \\
-%         \bottomrule
-%     \end{tabular}
-%     \caption{}
-%     \label{tab:fifa-corr}
-% \end{table}
-
-% \begin{figure}[!ht]
-%     \centering
-%     \includegraphics[width=0.4\textwidth]{spider_SLMVP_radial.png}
-%     \label{fig:spider_slmvp_fifa}
-% \end{figure}
-
-\subsubsection{Choosing Features and Components}
 
 \begin{figure}[!ht]
     \centering
-    \begin{subfigure}{.5\textwidth}
+    \begin{subfigure}{.49\textwidth}
         \centering
-        \includegraphics[width=.9\linewidth]{hbar_fifa.png}
-        \caption{A subfigure}
-    \end{subfigure}%
-    \begin{subfigure}{.5\textwidth}
-        \centering
-        \includegraphics[width=.9\linewidth]{hbar_fifa_5dim.png}
-        \caption{A subfigure}
+        \includegraphics[width=\linewidth]{hbar_fifa_neg1.png}
+        \caption{1st Component}
     \end{subfigure}
-    \caption{Original features of the dataset ordered by their correlation to the components obtained with SLMVP with radial kernel and gamma values 0.1.}
-    \label{fig:test}
+    \begin{subfigure}{.49\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{hbar_fifa_neg2.png}
+        \caption{2nd component}
+    \end{subfigure}
+    \caption{Correlations of the first and second component with the original features.}
+    \label{fig:hbar-fifa-neg}
 \end{figure}
 
+\subsubsection{Choosing Features and Components}
+
+We can leverage the calculated absolute correlations to select the features that should be kept for a posterior machine learning task. Figure \ref{fig:hbar-fifa} shows the 20 features with the highest absolute correlations with the first component, in the case of the first subplot, and the average of the first 5 components, in the case of the second subplot.
+The features related to attacking and defending are the ones with the highest absolute correlations, which matches what was shown in Figure \ref{fig:2d_spider_fifa}. Selecting the features with a higher correlation than $0.2$ is reasonable.
+
+\begin{figure}[!ht]
+    \centering
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=.6\linewidth]{hbar_fifa.png}
+        \caption{1 component}
+    \end{subfigure}%
+
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=.6\linewidth]{hbar_fifa_5dim.png}
+        \caption{5 components}
+    \end{subfigure}
+    \caption{Original features of the FIFA dataset ordered by their correlation to the components obtained with SLMVP with radial kernel and gamma values 0.1.}
+    \label{fig:hbar-fifa}
+\end{figure}
 
 
 \section{Insurance Company Benchmark (COIL 2000) Dataset}
 
-In this section, we conduct an evaluation and comparison of various techniques aimed at reducing the dimensionality of the FIFA dataset introduced in section \ref{section:coil-dataset}. Our objective is to determine the most effective techniques for minimizing the dataset's complexity. The evaluation results are presented in Table \ref{tab:coil-dataset}, where the techniques are ranked based on their accuracy. The table showcases the top-performing techniques in descending order.
-
 \subsection{Classification Results}
+
+We conduct an evaluation and comparison of various techniques aimed at reducing the dimensionality of the COIL 2000 dataset introduced in Section \ref{section:coil-dataset}. The evaluation results are presented in Table \ref{tab:coil-dataset}, where the techniques are ranked based on their accuracy. SLMVP is again the clear winner for this dataset. It achieves a higher accuracy than the other techniques for dimensions. It stands out at 3 dimensions, where it peaks at an accuracy of 77.5\%. LOL follows closely in second place for all the tested dimensions except at 30 dimensions, where LLE takes its place.
 
 % Classification Table
 \begin{table}[!h]
@@ -347,11 +345,17 @@ In this section, we conduct an evaluation and comparison of various techniques a
     \label{fig:coil_line_chart}
 \end{figure}
 
-\subsection{Visualization}
-% https://online.stat.psu.edu/stat505/lesson/11/11.4
+\subsection{Explanation}
+
+By looking at the scatter plots created by the different techniques in figures \ref{fig:coil-2d} and \ref{fig:coil-3d}, we can compare how well they perform in capturing and preserving the structure of the original dataset. Here are the key observations we can make:
+
+\begin{itemize}
+    \item Unlike with the previous datasets, these classes are more difficult to clearly separate. This is reasonable considering that the maximum accuracy that could be achieved in the classification task was 77.5\%. Nonetheless, SLMVP and LOL do a good job separating those 70-80\% of datapoints along the first two axes.
+    \item The results from all the techniques, demonstrate a relatively even distribution of data points in the reduced space, indicating that it effectively captures the overall variance of the dataset.
+\end{itemize}
 
 % 2D Visualization
-\begin{figure}[!h]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{coil2000_2d.png.png}
     \caption{Visualization of the clusters projected into 2 dimensions that resulted from the application of the different dimensionality reduction techniques on the COIL 2000 dataset.}
@@ -359,17 +363,27 @@ In this section, we conduct an evaluation and comparison of various techniques a
 \end{figure}
 
 % 3D Visualization
-\begin{figure}[!h]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{coil2000_3d.png.png}
     \caption{Visualization of the clusters projected into 3 dimensions that resulted from the application of the different dimensionality reduction techniques on the COIL 2000 dataset.}
     \label{fig:coil-3d}
 \end{figure}
 
+\subsubsection{Comparing Techniques}
+
+The heat map in Figure \ref{fig:heatmap-coil} visually represents the similarity and dissimilarity between different dimensionality reduction techniques based on their Spearman rank correlation coefficients. The correlation coefficients are calculated by measuring the absolute correlations between the data in the reduced space from each technique and the original data. Higher correlation coefficients indicate a stronger resemblance between the reduced-dimensional representations obtained using 2 dimensionality reduction techniques. We can make the following observations:
+
+\begin{itemize}
+    \item PCA, KPCA and LOL exhibit very high correlations between one another. KPCA was executed in its linear kernel configuration, which yields results that very closely resemble PCA. Furthermore, the similarity between PCA and LOL was also present in other datasets.
+    \item SLMVP manifests a moderate correlation with PCA, KPCA and LOL.
+    \item LPP stands out as yielding the most unique result, with very low correlations with other techniques.
+\end{itemize}
+
 % Heatmap
-\begin{figure}
+\begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.7\textwidth]{heatmap_coil.png}[!h]
+    \includegraphics[width=0.7\textwidth]{heatmap_coil.png}
     \caption{Heatmap of Spearman Rank Correlation Coefficients}
     \label{fig:heatmap-coil}
 \end{figure}
@@ -378,26 +392,36 @@ In this section, we conduct an evaluation and comparison of various techniques a
 
 \begin{figure}[!ht]
     \centering
-    \begin{subfigure}{.5\textwidth}
+    \begin{subfigure}{\textwidth}
         \centering
-        \includegraphics[width=.9\linewidth]{hbar_coil.png}
-        \caption{A subfigure}
-    \end{subfigure}%
-    \begin{subfigure}{.5\textwidth}
-        \centering
-        \includegraphics[width=.9\linewidth]{hbar_coil_5dim.png}
-        \caption{A subfigure}
+        \includegraphics[width=.6\linewidth]{hbar_coil.png}
+        \caption{1 component}
     \end{subfigure}
-    \caption{Original features of the dataset ordered by their correlation to the components obtained with SLMVP with radial kernel and gamma values 0.1.}
-    \label{fig:test}
+
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=.6\linewidth]{hbar_coil_5dim.png}
+        \caption{5 components}
+    \end{subfigure}
+    \caption{Original features of the COIL 2000 dataset ordered by their correlation to the components obtained with SLMVP with radial kernel and gamma values 0.1.}
+    \label{fig:hbar-coil}
 \end{figure}
+
+We can leverage the calculated absolute correlations to select the features that should be kept for a posterior machine learning task. Figure \ref{fig:hbar-coil} shows the 15 features with the highest absolute correlations with the first component, in the case of the first subplot, and the average of the first 5 components, in the case of the second subplot.
+
+In the first subplot, the features that show the highest absolute correlation with the component are related to whether the client already had some type of insurance. These are \textit{Contribution car policies}, \textit{Number of car policies}, and \textit{Contribution private third party insurance}. We also observe features related to the education level and income of the client.
+The highest correlated features at 5 components do differ. We observe \textit{Rented house} and \textit{Home owners} at the top, as well as other features related to the marital status, or whether the client lives in a household with children.
 
 \section{ORL Dataset}
 
 \subsection{Classification Results}
 
+We conduct an evaluation and comparison of various techniques aimed at reducing the dimensionality of the Our Database of Faces (ORL) dataset introduced in Section \ref{section:orl-dataset}. The evaluation results are presented in Table \ref{tab:orl-dataset}, where the techniques are ranked based on their accuracy.
+
+For this dataset, at least 5 components are necessary for any dimensionality reduction technique machine learning model pair to reach a high accuracy (greater than 90\%). LOL is the best performing technique at 5 dimensions. LOL, KPCA, and PCA obtain very high accuracies at 15 dimensions and reach a 100\% at 30 dimensions. LLE and SLMVP underperform, perhaps due to their locality characteristic. The dataset is composed of images of 40 different faces, with variations in head rotation, tilt and pose, and locality can misguide the model.
+
 % Classification Table
-\begin{table}[!h]
+\begin{table}[!ht]
     \begin{tabular}{llllr}
         \toprule
         {}                                       & Dim. Technique & Dim. Params    & Model         & Accuracy \\
@@ -425,14 +449,21 @@ In this section, we conduct an evaluation and comparison of various techniques a
 \end{table}
 
 % Comparison Line Chart
-\begin{figure}[!h]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=0.7\textwidth]{orl_line_chart.png}
     \caption{This figure shows how the accuracy of the best-performing model for each dimensionality reduction technique, evolves as the number of dimensions is increased.}
     \label{fig:orl_line_chart}
 \end{figure}
 
-\subsection{Visualization}
+\subsection{Explanation}
+
+By looking at the scatter plots created by the different techniques in figures \ref{fig:orl-2d} and \ref{fig:orl-3d}, we can compare how well they perform in capturing and preserving the structure of the original dataset. Here are the key observations we can make:
+
+\begin{itemize}
+    \item The results from all the techniques, demonstrate a relatively even distribution of data points in the reduced space, indicating that it effectively captures the overall variance of the dataset.
+    \item Only SLMVP with a radial kernel manages to clearly separate the classes. They do it in an interesting heart-like shape with 2 components.
+\end{itemize}
 
 % 2D Visualization
 \begin{figure}[!h]
@@ -450,6 +481,15 @@ In this section, we conduct an evaluation and comparison of various techniques a
     \label{fig:orl-3d}
 \end{figure}
 
+\subsubsection{Comparing Techniques}
+
+The heat map in Figure \ref{fig:heatmap-orl} visually represents the similarity and dissimilarity between different dimensionality reduction techniques based on their Spearman rank correlation coefficients. Higher correlation coefficients indicate a stronger resemblance between the reduced-dimensional representations obtained using 2 dimensionality reduction techniques. We can make the following observations:
+
+\begin{itemize}
+    \item LLE and SLMVP exhibit the highest correlations between one another. This might be due to the fact that both techniques are local and incorporate neighborhood information of the dataset.
+    \item KPCA, LLE, and LPP manifest moderate correlations.
+\end{itemize}
+
 % Heatmap
 \begin{figure}
     \centering
@@ -460,18 +500,20 @@ In this section, we conduct an evaluation and comparison of various techniques a
 
 \subsubsection{Choosing Features and Components}
 
+We can leverage the calculated absolute correlations to select the features that should be kept for a posterior machine learning task. Figure \ref{fig:hbar-orl} shows the 15 features with the highest absolute correlations with the first component, in the case of the first subplot, and the average of the first 5 components, in the case of the second subplot. For this image data, the correlations follow a smooth curve and it is difficult to determine how many features to reject. It seems reasonable to reject the features that correspond to the outer parts of the frame, but then again, those pixels might contain useful information.
+
 \begin{figure}[!ht]
     \centering
     \begin{subfigure}{.5\textwidth}
         \centering
         \includegraphics[width=.9\linewidth]{hbar_orl.png}
-        \caption{A subfigure}
+        \caption{1 component}
     \end{subfigure}%
     \begin{subfigure}{.5\textwidth}
         \centering
         \includegraphics[width=.9\linewidth]{hbar_orl_5dim.png}
-        \caption{A subfigure}
+        \caption{5 components}
     \end{subfigure}
-    \caption{Original features of the dataset ordered by their correlation to the components obtained with SLMVP with radial kernel and gamma values 0.1.}
-    \label{fig:test}
+    \caption{Original features of the ORL dataset ordered by their correlation to the components obtained with SLMVP with radial kernel and gamma values 0.1.}
+    \label{fig:hbar-orl}
 \end{figure}

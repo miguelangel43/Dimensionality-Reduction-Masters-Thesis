@@ -64,7 +64,7 @@ $$
     \end{bmatrix}.
 $$
 
-Vector $s_i$ contains the information about the significance that the $i$-th component assigns to each of the original features. The position in the vector of the element of $s_i$ with the highest number indicates the feature that $s_i$ gives more importance to. In the example above, $X_1$ is the feature that $s_1$ gives more importance to because the first position of $s_1$ has the highest number, $3$. Subsequently, $X_3$ would be the second most important, and $X_2$ the least important. This allows us to compare and determine the similarity or dissimilarity of two components using the \textit{Spearman's rank correlation coefficient} of the absolute correlations. This coefficient is explained in \ref{section:spearman}. We do so by simply taking the correlation of vectors $s_i$ and $s_j$, there is no need for calculating the ranks, as that was done previously.
+Vector $s_i$ contains the information about the significance that the $i$-th component assigns to each of the original features. The position in the vector of the element of $s_i$ with the highest number indicates the feature that $s_i$ gives more importance to. In the example above, $X_1$ is the feature that $s_1$ gives more importance to because the first position of $s_1$ has the highest number, $3$. Subsequently, $X_3$ would be the second most important, and $X_2$ the least important. This allows us to compare and determine the similarity or dissimilarity of two components using the \textit{Spearman's rank correlation coefficient} of the absolute correlations. We do so by simply taking the correlation of vectors $s_i$ and $s_j$, there is no need for calculating the ranks, as that was done previously.
 
 Following the previous example, suppose $s_1$ corresponds to the first projection of the reduced space discovered by $PCA$. We will refer to $s_1$ as $s_{PCA,1}$ from now on. Furthermore, let $s_{SLMVP,1} = [ 2, 1, 3 ]$ be the vector that corresponds to the first projection of the reduced space discovered by $SLMVP$. We compute the \textit{Spearman's rank correlation coefficient} by calculating $corr(s_{PCA,1}, s_{SLMVP,1})$ in the following manner.
 
@@ -100,48 +100,98 @@ The recommendation concerning the amount of components is to make that choice ba
 This section details the selection and preparation of datasets, describes the dimensionality reduction techniques and machine learning algorithms utilized.
 
 \subsection{Techniques and Models}
-We want to explain dimensionality reduction techniques with the parameters that fit the data well, and we measure that by the accuracy that they yield when used in a machine learning pipeline. For that purpose, the algorithms are run in different settings and then machine learning models use the components for the classification task. These machine learning models are, in turn, also tested with different parameters.
+We want to explain dimensionality reduction techniques with the parameters that fit the data well, and we measure that by the accuracy that they yield when used in a machine learning pipeline. For that purpose, the algorithms are run in different settings and then machine learning models use the components for the classification task. These machine learning models are, in turn, also tested with different parameters. Table \ref{tab:models} shows the parameters tested for the dimensionality reduction techniques.
 
-\begin{itemize}
-    \item PCA
-          \subitem Default parameters.
-    \item SLMVP
-          \subitem Kernel: linear, polynomial of order 5, radial rbf with gamma values $0.1$ and $0.01$ for both the dependent and the independent variables.
-    \item KPCA
-          \subitem Kernel: linear, polynomial of order 5, radial rbf with gamma value $0.1$ and $\frac{1}{\text{\# rows}}$.
-    \item LOL
-          \subitem Default parameters.
-    \item LPP
-          \subitem  Number of neighbors to consider on the adjacency graph:
-          \subitem $\lfloor\sqrt{min(\text{\# rows, \# columns})}\rfloor$.
-    \item LLE
-          \subitem Number of neighbors to generate the local linear approximation:
-          \subitem $\lfloor\sqrt{min(\text{\# rows, \# columns})}\rfloor$
-          \subitem Regularization parameter: $0.001$.
-\end{itemize}
+% Dimensionality Redcution Techniques Parameters Table
+\begin{table}[!ht]
+    \centering
+    \begin{tabular}{lp{12cm}}
+        \toprule
+        Model                                                & Parameters                                                                                                                                 \\
+        \midrule
+        PCA \cite{pca}                                       & Default parameters.                                                                                                                        \\[2mm]
+        \rowcolor{lightgray}SLMVP \cite{slmvp}               & Kernel: linear, polynomial of order 5, radial rbf with gamma values $0.1$ and $0.01$ for both the dependent and the independent variables. \\[2mm]
+        LOL \cite{lol}                                       & Default parameters.                                                                                                                        \\[2mm]
+        \rowcolor{lightgray}KPCA  \cite{kpca}                & linear, polynomial of order 5, radial rbf with gamma value $0.1$ and $\frac{1}{\text{\# rows}}$.                                           \\[2mm]
+        LPP \cite{lpp}                                       & Number of neighbors to consider on the adjacency graph: $\lfloor\sqrt{min(\text{\# rows, \# columns})}\rfloor$.                            \\[2mm]
+        \rowcolor{lightgray}                                 & Number of neighbors to generate the local linear approximation: $\lfloor\sqrt{min(\text{\# rows, \# columns})}\rfloor$.                    \\[2mm]
+        \rowcolor{lightgray}\multirow{-2}{*}{LLE \cite{lle}} & Regularization parameter: $0.001$.                                                                                                         \\
+        \bottomrule
+    \end{tabular}
+    \caption{Parameters tested for each of the dimensionality reduction techniques.}
+    \label{tab:techniques}
+\end{table}
 
-Similarly, the machine learning classifiers have been configured on the grid search with the following parameters:
+Similarly, the machine learning classifiers have been configured on the grid search with the the parameters in Table \ref{tab:models}.
 
-\begin{itemize}
-    \item XGBoost
-          \subitem Number of estimators: $5, 10, 20, 50,$ and $100$ were tested
-    \item KNN.
-          \subitem Number of neighbors: $3, 5, 10, 20, 50,$ and $100$ were tested.
-    \item SVM
-          \subitem Regularization parameter C: $0.1, 1,$ and $10$.
-          \subitem Kernel: linear, radial rbf and polynomial.
-    \item Decision Tree.
-          \subitem Maximum depth: $None, 5, 10, 20,$ and $50$
-    \item Naive Bayes
-    \item Random Forest
-          \subitem Number of estimators: $50, 100,$ and $200$
-          \subitem Maximum depth: $None, 5, 10,$ and $20$
-    \item LDA
-          \subitem Solver: svd, lsqr, and eigen.
-    \item AdaBoost
-          \subitem Number of estimators: $50, 100,$ and $200$.
-          \subitem Learning rate: $0.1, 0.5,$ and $1$.
-\end{itemize}
+
+\begin{table}[!ht]
+    \centering
+    \begin{tabular}{lp{11cm}}
+        \toprule
+        Model                                                                   & Parameters                                      \\
+        \midrule
+        XGBoost \cite{xgboost}                                                  & Number of estimators: 5, 10, 20, 50, and 100.   \\[2mm]
+        \rowcolor{lightgray} KNN \cite{knn}                                     & Number of neighbors: 3, 5, 10, 20, 50, and 100. \\[2mm]
+                                                                                & Regularization parameter C: 0.1, 1, and 10.     \\
+        \multirow{-2}{*}{SVM \cite{svm}}                                        & Kernel: linear, radial rbf and polynomial.      \\[2mm]
+        \rowcolor{lightgray} Decision Tree                                      & Maximum depth: None, 5, 10, 20, and 50.         \\[2mm]
+        Naive Bayes                                                             & Default parameters.                             \\[2mm]
+        \rowcolor{lightgray}                                                    & Number of estimators: 50, 100, and 200.         \\
+        \rowcolor{lightgray}\multirow{-2}{*}{Random Forest \cite{randomforest}} & Maximum depth: None, 5, 10, and 20              \\[2mm]
+        LDA \cite{lda}                                                          & Solver: svd, lsqr, and eigen.                   \\[2mm]
+        \rowcolor{lightgray}                                                    & Number of estimators: 50, 100, and 200.         \\
+        \rowcolor{lightgray}\multirow{-2}{*}{AdaBoost \cite{adaboost}}          & Maximum depth: None, 5, 10, and 20.             \\[2mm]
+        \bottomrule
+    \end{tabular}
+    \caption{Parameters tested for each of the machine learning models.}
+    \label{tab:models}
+\end{table}
+
+% ML Libraries
+
+\begin{table}[!ht]
+    \begin{center}
+        \begin{tabular}{llllr}
+            \toprule
+            Model         & Library                                                   \\
+            \midrule
+            XGBoost       & xgboost.XGBClassifier                                     \\
+            KNN           & sklearn.neighbors.KNeighborsClassifier                    \\
+            SVM           & sklearn.svm.SVC                                           \\
+            Decision Tree & sklearn.tree.DecisionTreeClassifier                       \\
+            Naive Bayes   & sklearn.naive\_bayes.GaussianNB                           \\
+            Random Forest & sklearn.ensemble.RandomForestClassifier                   \\
+            LDA           & sklearn.discriminant\_analysis.LinearDiscriminantAnalysis \\
+            AdaBoost      & sklearn.ensemble.AdaBoostClassifier                       \\
+            \bottomrule
+        \end{tabular}
+    \end{center}
+    \caption{Python libraries containing the implementation of the machine learning algorithms utilized.}
+    \label{tab:libraries-models}
+\end{table}
+
+
+% Dim Red Libraries
+\begin{table}[!ht]
+    \begin{center}
+        \begin{tabular}{llllr}
+            \toprule
+            Model & Library                                 \\
+            \midrule
+            PCA   & sklearn.decomposition.PCA               \\
+            KPCA  & sklearn.decomposition.KernelPCA         \\
+            LOL   & lol.LOL                                 \\
+            LPP   & lpproj.LocalityPreservingProjection     \\
+            LLE   & sklearn.manifold.LocallyLinearEmbedding \\
+            \bottomrule
+        \end{tabular}
+    \end{center}
+    \caption{Python libraries containing the implementation of the dimensionality reduction techniques utilized.}
+    \label{tab:libraries-techniques}
+\end{table}
+
+
 
 \subsection{Datasets}
 This section introduces the datasets utilized in this master's thesis. The aim is to provide a comprehensive overview of the datasets, including their sources, characteristics, and any preprocessing steps applied.

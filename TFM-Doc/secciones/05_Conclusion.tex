@@ -1,1 +1,19 @@
 \chapter{Conclusion}
+
+% Findings:
+% 1. SLMVP works with multilabel, achieves high accuracies on the datasets used, visually separates the classes better than other models.
+% 2. Comparing techniques: SLMVP is most similar to LOL and LPP
+% 3. Overcome trade-off between complexity and explainability with FIFA dataset
+% 4. Interpret the classes through the correlations of the components to the features
+
+This master's thesis aimed to explore the explainability of dimensionality reduction techniques. Throughout the study, we explored the state-of-the art in the fields of dimensionality reduction and explainable artificial intelligence. We examined relevant techniques such as SLMVP, PCA or LOL, and assessed their effectiveness in reducing high-dimensional data while preserving essential information both through the explainability of the their components, and through their ability to reach high accuracies when paired with a machine learning model.
+
+Some of the key findings of this research is that SLMVP is capable of effectively handling multilabel datasets, being able to separate the classes more clearly than the other tested techniques. SLMVP also excelled at segregating the clusters for single-label data, achieving the highest accuracy in 3 out of the 4 datasets employed. Furthermore, SLMVP is most similar to the techniques LOL and LPP in the significance that it gives to the original features. This is due to the fact that it possesses the characteristics of being local and supervised.
+
+Moreover, the trade-off between complexity and explainability was discussed. While dimensionality reduction is most effective when dealing with datasets containing numerous features, it becomes challenging to present high-dimensional data through graphs and tables in a manner that humans can easily comprehend. However, this challenge was successfully overcome by utilizing the FIFA dataset, which conveniently groups its features into six distinct categories (such as \textit{attacking}, \textit{defending}, etc.) facilitating its explainability.
+
+Additionally, the thesis introduced a way of interpreting the classes by examining the correlation between components and the original features. This correlation was then utilized to provide recommendations on which features should be selected and how many components should be retained for subsequent machine learning prediction tasks.
+
+In conclusion, this thesis contributes to the understanding of dimensionality reduction techniques and highlights the importance of finding a balance between complexity, interpretability, and performance in machine learning.
+
+% Future Work

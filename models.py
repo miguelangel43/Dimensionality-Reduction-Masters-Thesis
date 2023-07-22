@@ -21,8 +21,11 @@ from datetime import datetime
 from math import floor, sqrt
 import pandas as pd
 import numpy as np
-from tensorflow import keras
-from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.metrics import mean_absolute_error
 
 
 class Dim:
@@ -58,7 +61,7 @@ class Dim:
             self.new_dim = pickle.load(f)
 
     # 5, 10, 50 dims takes 5min
-    def apply_dim(self, num_dim=[1, 2, 5, 10], multilabel=None, tflag=None):
+    def apply_dim(self, num_dim=[1, 2, 5, 10], multilabel=None, tflag=None, reg_k=None):
         """Run dim. red. algorithms and save new features in self.new_dim
 
         Key arguments:
@@ -117,8 +120,7 @@ class Dim:
                 self.new_dim[key] = self.kpca_model(dim, 'rbf', gamma=0.1)
 
             if tflag is None or 9 not in tflag:
-                key = (str(dim) + 'Dim', 'KPCA', 'Radial-Gamma=' +
-                       str(round(1/len(self.X_train[0]), 3)))
+                key = (str(dim) + 'Dim', 'KPCA', 'Radial')
                 pbar.set_description(str(key))
                 self.new_dim[key] = self.kpca_model(dim, 'rbf')
 
@@ -127,13 +129,19 @@ class Dim:
                     # No known way of getting the components
                     key = (str(dim) + 'Dim', 'LOL', '')
                     pbar.set_description(str(key))
-                    self.new_dim[key] = self.lol_model(dim, n_components=dim)
+                    self.new_dim[key] = self.lol_model(n_components=dim+1)
 
             if tflag is None or 11 not in tflag:
-                k = floor(sqrt(min(len(self.X_train), len(self.X_train[0]))))
-                key = (str(dim) + 'Dim', 'LPP', 'k=' + str(k))
+                if reg_k is not None:
+                    k = reg_k
+                    key = (str(dim) + 'Dim', 'LPP', 'k=' + str(k))
+                else:
+                    k = floor(
+                        sqrt(min(len(self.X_train), len(self.X_train[0]))))
+                    key = (str(dim) + 'Dim', 'LPP', 'k=' + str(k))
                 pbar.set_description(str(key))
-                self.new_dim[key] = self.lpp_model(dim, k)
+                self.new_dim[key] = self.lpp_model(
+                    dim, k)
 
             if tflag is None or 12 not in tflag:
                 k = floor(sqrt(len(self.X_train)))
@@ -214,7 +222,7 @@ class Dim:
 
         return X_kpca_train.T, X_kpca_test.T
 
-    def lol_model(self, n, n_components):
+    def lol_model(self, n_components):
         lmao = LOL(n_components=n_components, svd_solver='full')
         lmao.fit(self.X_train, self.y_train)
         X_lol_train = lmao.transform(self.X_train)
@@ -243,24 +251,29 @@ class Dim:
 
             for key_dim in tqdm(self.new_dim.keys(), desc='XGBoost'):
                 gs_xgb.fit(self.new_dim[key_dim][0].T, self.y_train)
+                # Make predictions on the test set
+                y_pred = gs_xgb.predict(self.new_dim[key_dim][1].T)
+                # Calculate accuracy
+                accuracy = accuracy_score(self.y_test, y_pred)
+                mae = mean_absolute_error(self.y_test, y_pred)
                 self.scores[('XGBoost', *key_dim)] = ['XGBoost',
-                                                      gs_xgb.score(
-                                                          self.new_dim[key_dim][1].T, self.y_test),
-                                                      gs_xgb.best_params_
+                                                      accuracy,
+                                                      gs_xgb.best_params_,
+                                                      mae
                                                       ]
 
-        if models is None or 'Linear Regression' in models:
-            reg_pipe = Pipeline([('mms', MinMaxScaler()),
-                                 ('reg', LinearRegression())])
+        # if models is None or 'Linear Regression' in models:
+        #     reg_pipe = Pipeline([('mms', MinMaxScaler()),
+        #                          ('reg', LinearRegression())])
 
-            for key_dim in tqdm(self.new_dim.keys(), desc='Linear Reg.'):
-                reg_pipe.fit(self.new_dim[key_dim][0].T, self.y_train)
+        #     for key_dim in tqdm(self.new_dim.keys(), desc='Linear Reg.'):
+        #         reg_pipe.fit(self.new_dim[key_dim][0].T, self.y_train)
 
-                self.scores[('Linear Regression', *key_dim)] = ['Linear Regression',
-                                                                reg_pipe.score(
-                                                                    self.new_dim[key_dim][1].T, self.y_test),
-                                                                ''
-                                                                ]
+        #         self.scores[('Linear Regression', *key_dim)] = ['Linear Regression',
+        #                                                         reg_pipe.score(
+        #                                                             self.new_dim[key_dim][1].T, self.y_test),
+        #                                                         ''
+        #                                                         ]
 
         if models is None or 'KNN' in models:
             knn_pipe = Pipeline([('mms', MinMaxScaler()),
@@ -277,15 +290,17 @@ class Dim:
                 y_pred = gs_knn.predict(self.new_dim[key_dim][1].T)
                 # Calculate accuracy
                 accuracy = accuracy_score(self.y_test, y_pred)
+                mae = mean_absolute_error(self.y_test, y_pred)
                 self.scores[('KNN', *key_dim)] = ['KNN',
                                                   accuracy,
-                                                  gs_knn.best_params_
+                                                  gs_knn.best_params_,
+                                                  mae
                                                   ]
 
         if models is None or 'SVM' in models:
             svm_pipe = Pipeline([('mms', MinMaxScaler()),
                                  ('svm', SVC())])
-            params = [{'svm__C': [0.1, 1, 10, 100],
+            params = [{'svm__C': [0.1, 1, 10],
                        'svm__kernel': ['linear', 'rbf', 'polynomial']}]
             gs_svm = GridSearchCV(svm_pipe,
                                   param_grid=params,
@@ -298,46 +313,136 @@ class Dim:
                 y_pred = gs_svm.predict(self.new_dim[key_dim][1].T)
                 # Calculate accuracy
                 accuracy = accuracy_score(self.y_test, y_pred)
+                mae = mean_absolute_error(self.y_test, y_pred)
                 self.scores[('SVM', *key_dim)] = ['SVM',
                                                   accuracy,
-                                                  gs_svm.best_params_
+                                                  gs_svm.best_params_,
+                                                  mae
                                                   ]
-        # if models is None or 'ANN' in models:
-        #     for key_dim in tqdm(self.new_dim.keys(), desc='ANN'):
-        #         # Define the neural network model
-        #         model = keras.Sequential([
-        #             keras.layers.Dense(16, activation='relu',
-        #                                input_shape=(int(key_dim[0][:-3]),)),
-        #             keras.layers.Dense(16, activation='relu'),
-        #             keras.layers.Dense(1, activation='sigmoid')
-        #         ])
-        #         # Compile the model
-        #         model.compile(optimizer='adam',
-        #                       loss='binary_crossentropy', metrics=['accuracy'])
-        #         input_data = self.new_dim[key_dim][0].reshape(900, -1)
-        #         model.fit(input_data, self.y_train,
-        #                   epochs=10, batch_size=32, verbose=0)
-        #         y_pred = model.predict(self.new_dim[key_dim][1].T)
-        #         y_pred = (y_pred > 0.5).astype(int)
 
-        #         # Calculate the accuracy
-        #         accuracy = accuracy_score(self.y_test, y_pred)
-        #         self.scores[('ANN', *key_dim)] = ['ANN',
-        #                                           accuracy,
-        #                                           ''
-        #                                           ]
+        if models is None or 'Decision Tree' in models:
+            dt_pipe = Pipeline([('mms', MinMaxScaler()),
+                                ('dt', DecisionTreeClassifier())])
+            params = [{'dt__max_depth': [None, 5, 10, 20, 50]}]
+            gs_dt = GridSearchCV(dt_pipe,
+                                 param_grid=params,
+                                 scoring='accuracy',
+                                 cv=5)
+
+            for key_dim in tqdm(self.new_dim.keys(), desc='Decision Tree'):
+                gs_dt.fit(self.new_dim[key_dim][0].T, self.y_train)
+                # Make predictions on the test set
+                y_pred = gs_dt.predict(self.new_dim[key_dim][1].T)
+                # Calculate accuracy
+                accuracy = accuracy_score(self.y_test, y_pred)
+                mae = mean_absolute_error(self.y_test, y_pred)
+                self.scores[('Decision Tree', *key_dim)] = ['Decision Tree',
+                                                            accuracy,
+                                                            gs_dt.best_params_,
+                                                            mae
+                                                            ]
+
+        if models is None or 'Naive Bayes' in models:
+            nb_pipe = Pipeline([('mms', MinMaxScaler()),
+                                ('nb', GaussianNB())])
+            params = [{}]
+            gs_nb = GridSearchCV(nb_pipe,
+                                 param_grid=params,
+                                 scoring='accuracy',
+                                 cv=5)
+
+            for key_dim in tqdm(self.new_dim.keys(), desc='Naive Bayes'):
+                gs_nb.fit(self.new_dim[key_dim][0].T, self.y_train)
+                # Make predictions on the test set
+                y_pred = gs_nb.predict(self.new_dim[key_dim][1].T)
+                # Calculate accuracy
+                accuracy = accuracy_score(self.y_test, y_pred)
+                mae = mean_absolute_error(self.y_test, y_pred)
+                self.scores[('Naive Bayes', *key_dim)] = ['Naive Bayes',
+                                                          accuracy,
+                                                          gs_nb.best_params_,
+                                                          mae
+                                                          ]
+
+        if models is None or 'Random Forest' in models:
+            rf_pipe = Pipeline([('mms', MinMaxScaler()),
+                                ('rf', RandomForestClassifier())])
+            params = [{'rf__n_estimators': [50, 100, 200],
+                       'rf__max_depth': [None, 5, 10, 20]}]
+            gs_rf = GridSearchCV(rf_pipe,
+                                 param_grid=params,
+                                 scoring='accuracy',
+                                 cv=5)
+
+            for key_dim in tqdm(self.new_dim.keys(), desc='Random Forest'):
+                gs_rf.fit(self.new_dim[key_dim][0].T, self.y_train)
+                # Make predictions on the test set
+                y_pred = gs_rf.predict(self.new_dim[key_dim][1].T)
+                # Calculate accuracy
+                accuracy = accuracy_score(self.y_test, y_pred)
+                mae = mean_absolute_error(self.y_test, y_pred)
+                self.scores[('Random Forest', *key_dim)] = ['Random Forest',
+                                                            accuracy,
+                                                            gs_rf.best_params_,
+                                                            mae
+                                                            ]
+
+        if models is None or 'LDA' in models:
+            lda_pipe = Pipeline([('mms', MinMaxScaler()),
+                                ('lda', LinearDiscriminantAnalysis())])
+            params = [{'lda__solver': ['svd', 'lsqr', 'eigen']}]
+            gs_lda = GridSearchCV(lda_pipe,
+                                  param_grid=params,
+                                  scoring='accuracy',
+                                  cv=5)
+
+            for key_dim in tqdm(self.new_dim.keys(), desc='LDA'):
+                gs_lda.fit(self.new_dim[key_dim][0].T, self.y_train)
+                # Make predictions on the test set
+                y_pred = gs_lda.predict(self.new_dim[key_dim][1].T)
+                # Calculate accuracy
+                accuracy = accuracy_score(self.y_test, y_pred)
+                mae = mean_absolute_error(self.y_test, y_pred)
+                self.scores[('LDA', *key_dim)] = ['LDA',
+                                                  accuracy,
+                                                  gs_lda.best_params_,
+                                                  mae
+                                                  ]
+
+        if models is None or 'AdaBoost' in models:
+            ada_pipe = Pipeline([('mms', MinMaxScaler()),
+                                ('ada', AdaBoostClassifier())])
+            params = [{'ada__n_estimators': [50, 100, 200],
+                       'ada__learning_rate': [0.1, 0.5, 1.0]}]
+            gs_ada = GridSearchCV(ada_pipe,
+                                  param_grid=params,
+                                  scoring='accuracy',
+                                  cv=5)
+
+            for key_dim in tqdm(self.new_dim.keys(), desc='AdaBoost'):
+                gs_ada.fit(self.new_dim[key_dim][0].T, self.y_train)
+                # Make predictions on the test set
+                y_pred = gs_ada.predict(self.new_dim[key_dim][1].T)
+                # Calculate accuracy
+                accuracy = accuracy_score(self.y_test, y_pred)
+                mae = mean_absolute_error(self.y_test, y_pred)
+                self.scores[('AdaBoost', *key_dim)] = ['AdaBoost',
+                                                       accuracy,
+                                                       gs_ada.best_params_,
+                                                       mae
+                                                       ]
 
         # Pickle all the scores
         self.pickle_scores(datetime.now().strftime('%m-%d-%H:%M'))
 
         df = pd.DataFrame.from_dict(self.scores, orient='index', columns=[
-                                    'Model', 'Best Score', 'Params']).reset_index()
+                                    'Model', 'Accuracy', 'Params', 'MAE']).reset_index()
         df[['Model', 'Dimensions', 'Dim. Technique', 'Dim. Params']] = pd.DataFrame(
             df['index'].tolist(), index=df.index)
 
         df = df.drop('index', axis=1)
 
-        df = df.sort_values('Best Score', ascending=False)
+        df = df.sort_values('Accuracy', ascending=False)
 
         file_name = datetime.now().strftime('%m-%d-%H:%M')
 
@@ -360,9 +465,10 @@ class Dim:
         y = self.y_train
         for idx, key_dim in enumerate(list(self.new_dim.keys())):
             ax[floor(idx/n_cols)][idx % n_cols].scatter(self.new_dim[key_dim]
-                                                        [0][0], self.new_dim[key_dim][0][1], c=y)
+                                                        [0][0], self.new_dim[key_dim][0][1], c=y, label=y)
             ax[floor(idx/n_cols)][idx % n_cols].set_title(list(self.new_dim.keys())
                                                           [idx][1] + ' ' + list(self.new_dim.keys())[idx][2])
+
         if save_name is not None:
             plt.savefig(
                 '/Users/espina/Documents/TFM/tfm_code/plots/' + save_name + '.png')
@@ -471,7 +577,7 @@ class Dim:
             var_dims = [np.var(self.new_dim[key][0][i])
                         for i in range(len(self.new_dim[key][0]))]
             por_eigenvals = [x/sum(var_dims) for x in var_dims]
-            res[key+('Var',)] = var_dims
+            # res[key+('Var',)] = var_dims
             res[key+('Var %',)] = por_eigenvals
             # Calculate regression betas
             model = LinearRegression().fit(
@@ -479,9 +585,9 @@ class Dim:
             betas = [abs(x) for x in model.coef_]
             r_squared = model.score(
                 self.new_dim[key][0].T, self.y_train)
-            res[key+('Beta',)] = betas
-            res[key+('Beta %',)] = [x/sum(betas) for x in betas]
-            res[key+('R^2',)] = [r_squared for x in range(len(betas))]
+            # res[key+('Beta',)] = betas
+            # res[key+('Beta %',)] = [x/sum(betas) for x in betas]
+            # res[key+('R^2',)] = [r_squared for x in range(len(betas))]
 
         res.columns = pd.MultiIndex.from_tuples(
             res.columns.to_list())
@@ -493,7 +599,38 @@ class Dim:
 
         return res
 
-    def get_corr_table(self, num_dim=None):
+    def get_corr_table(self, num_dim=None, abs=True):
+        if num_dim is None:
+            num_dim = self.num_dim
+        # Load the data into a Pandas df
+        if self.col_names is not None:
+            df = pd.DataFrame(self.X_train, columns=self.col_names[:-1])
+        else:
+            df = pd.DataFrame(self.X_train)
+        for key in tqdm(self.new_dim.keys()):
+            for i in range(num_dim):
+                df[key+(i,)] = self.new_dim[key][0][i]
+
+        # Correlations between the original data and each principal component
+        df_corr = df.corr().iloc[:len(self.X_train[0]), len(self.X_train[0]):]
+
+        # Make df multi-index
+        df_corr.columns = pd.MultiIndex.from_tuples(
+            df_corr.columns.to_list())
+
+        # Take only the abs value of the correlations
+        if abs:
+            df_corr = df_corr.abs()
+
+        # Save result in csv
+        df_corr.to_csv('/Users/espina/Documents/TFM/tfm_code/corr/corr_' +
+                       datetime.now().strftime('%m-%d-%H:%M')+'_'+str(num_dim)+'.csv')
+        df_corr.to_excel('/Users/espina/Documents/TFM/tfm_code/corr/corr_' +
+                         datetime.now().strftime('%m-%d-%H:%M')+'_'+str(num_dim)+'.xlsx')
+
+        return df_corr
+
+    def get_corr_table_avg(self, num_dim=None):
         if num_dim is None:
             num_dim = self.num_dim
         # Load the data into a Pandas df
@@ -514,6 +651,16 @@ class Dim:
 
         # Take only the abs value of the correlations
         df_corr = df_corr.abs()
+
+        # ---------------------- TODO -----------------------
+        # Load weights
+        if self.new_dim is not None:
+            df_weights = self.get_weights()
+            pass
+
+        # Add the 'Var %' column of df_weights to df_corr
+
+        # Multiply 'Var %' to
 
         # Save result in csv
         df_corr.to_csv('/Users/espina/Documents/TFM/tfm_code/corr/corr_' +

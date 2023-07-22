@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 from sklearn.preprocessing import LabelEncoder
+from imblearn.over_sampling import RandomOverSampler
 
 
 config = yaml.safe_load(open("config.yml"))
@@ -15,10 +16,20 @@ class coil2000:
     def __init__(self):
         self.data = np.genfromtxt(
             config['DATAFOLDER_PATH']+'coil2000/preprocessed_data.txt', delimiter=',')
-        self.train, self.test = train_test_split(
-            self.data, test_size=0.20, random_state=42)
         self.col_names = open(
             config['DATAFOLDER_PATH']+'coil2000/new_col_names.txt', "r").read().split('\n')
+        self.X = self.data[:, :-1]
+        self.y = self.data[:, -1]
+
+        # Balance the dataset using Random Oversampling
+        X, y = self.X, self.y
+        X = X.reshape(X.shape[0], -1)
+        ros = RandomOverSampler(random_state=42)
+
+        X, y = ros.fit_resample(X, y)
+        idx = np.random.choice(len(X), size=1000, replace=False)
+        self.X = X[idx]
+        self.y = y[idx]
 
 
 class orl:
@@ -30,14 +41,13 @@ class orl:
         self.load_data()
 
     def load_data(self):
-        # Run this cell only one time
         D = np.zeros(shape=(10304, ), dtype=np.int8)
         y = np.array([])
 
         for i in range(1, 41):
             for j in range(1, 11):
                 img = Image.open(
-                    config['DATAFOLDER_PATH'] + 'ORL/raw/s{i}/{j}.pgm')
+                    config['DATAFOLDER_PATH'] + f'ORL/raw/s{i}/{j}.pgm')
                 data = np.asarray(img).reshape(-1)
                 D = np.vstack((D, data))
                 y = np.append(y, i)
@@ -46,7 +56,63 @@ class orl:
         D = D[1:]
 
         self.X = D
-        self.y = y
+        self.y = y - 1
+
+
+class wine:
+    """https://archive.ics.uci.edu/dataset/186/wine+quality"""
+
+    def __init__(self):
+        df = pd.read_csv(config['DATAFOLDER_PATH'] +
+                         'wine_quality/raw/winequality-red.csv', sep=';')
+        df = df.sample(1000)
+        self.X = df.drop(labels='quality', axis=1).dropna().to_numpy()
+        self.y = df['quality'].to_numpy()
+
+
+class nba:
+    """https://www.kaggle.com/datasets/vivovinco/nba-player-stats"""
+
+    def __init__(self):
+        self.X = None
+        self.y = None
+        self.col_names = None
+        self.load_data()
+
+    def load_data(self):
+        df = pd.read_csv(config['DATAFOLDER_PATH'] +
+                         'nba_players/nba_raw/2021-2022 NBA Player Stats - Regular.csv', sep=';')
+        df = df[df['Pos'].isin(['C', 'PF', 'SG', 'PG', 'SF'])]
+        label_encoder = LabelEncoder()
+        self.y = label_encoder.fit_transform(df[['Pos']])
+        X_cols = ['Age',
+                  'G',
+                  'GS',
+                  'MP',
+                  'FG',
+                  'FGA',
+                  'FG%',
+                  '3P',
+                  '3PA',
+                  '3P%',
+                  '2P',
+                  '2PA',
+                  '2P%',
+                  'eFG%',
+                  'FT',
+                  'FTA',
+                  'FT%',
+                  'ORB',
+                  'DRB',
+                  'TRB',
+                  'AST',
+                  'STL',
+                  'BLK',
+                  'TOV',
+                  'PF',
+                  'PTS']
+        self.X = df[X_cols].dropna().to_numpy()
+        self.col_names = [*X_cols, 'Pos']
 
 
 class fifa:
@@ -314,7 +380,7 @@ class fifa:
         df = df[[*X_cols, 'position']].dropna()
 
         # df = df[~df.player_positions.isin(['SUB', 'RES'])]
-        df = df.sample(1000)
+        # df = df.sample(1000)
 
         self.X = df[X_cols].to_numpy()
         # Assuming 'category_column' is the categorical column in your DataFrame

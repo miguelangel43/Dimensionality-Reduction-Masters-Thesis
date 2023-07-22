@@ -9,14 +9,14 @@ In the domain of machine learning, two commonly employed techniques for dimensio
 Feature selection tries to identify the subset that contains the most relevant and informative features while excluding redundant ones.
 Feature extraction transforms the original set of features into a new set that is created by combining the original variables, thereby projecting the data onto a subspace of lower dimensionality. This process involves capturing the underlying structure and patterns of the data while reducing its dimensionality.
 
-There are two main binary classes into which feature selection techniques can be classified: supervised or unsupervised, and local or not local.
+There are two main binary classes into which feature extraction techniques can be classified: supervised or unsupervised, and local or not local.
 % Supervised vs. Unsupervised
 Supervised learning consists on training a model on labeled data, where the input samples have associated target or output labels, whereas unsupervised learning consists on training a model on unlabeled data, where the input samples do not have associated target or output labels. A lot of research in dimensionality reduction has been devoted to unsupervised techniques, including PCA, KPCA, LPP and LLE. This approach results in dimensions that have no statistical guarantee of being close to the best ones for classification. The recent supervised techniques LOL and SLMVP make it worth shifting the focus, since they outperform their unsupervised counterparts in several metrics.
 
 % Local vs. Not Local
 Local dimensionality reduction techniques focus on preserving the local structure and relationships among data points in the reduced feature space. They aim to maintain the similarities and dissimilarities among neighboring data points. LLE, LPP and SLMVP have this property, however SLMVP is the only dimensionality reduction technique that is both local and supervised.
 % List of state-of-the art techniques
-In the Related Work section of this thesis, we explore various feature selection techniques including Principal Component Analysis \cite{pca} (PCA), Kernel-PCA \cite{kpca} (KPCA), Linear Optimal Low Rank \cite{lol} (LOL), Locality Preserving Projections \cite{lpp} (LPP), Locally Linear Embedding \cite{lle} (LLE) and Supervised Local Maximum Variance Preserving \cite{slmvp} (SLMVP).
+In the Related Work section of this thesis, we explore various feature extraction techniques including Principal Component Analysis \cite{pca} (PCA), Kernel-PCA \cite{kpca} (KPCA), Linear Optimal Low Rank \cite{lol} (LOL), Locality Preserving Projections \cite{lpp} (LPP), Locally Linear Embedding \cite{lle} (LLE) and Supervised Local Maximum Variance Preserving \cite{slmvp} (SLMVP).
 
 % Introduce Explainability and connect it to the aim of this thesis
 Explainable Artificial Intelligence \cite{xai} (XAI) aims at understanding machine learning model predictions and explain them in human and understandable terms to build trust with stakeholders. As artificial intelligence becomes more advanced and complex, they often operate as black boxes, making complex computations and generating results without transparently revealing the underlying processes. The objective of XAI methods is to reveal the internal mechanisms and decision-making of the models or the data. There exists machine learning models that provide inherent interpretability, such as decision trees or rule-based models. In addition, XAI methods such as Local Interpretable Model-Agnostic Explanations \cite{lime} (LIME) or SHapley Additive exPlanations \cite{shap} (SHAP) seek to explain the prediction  of black-box models.
@@ -41,5 +41,6 @@ In accordance with the goals stated above, this document is structured into five
     \item Introduction.
     \item Related Work: explores existing literature and research in the fields of dimensionality reduction and explainable artificial intelligence.
     \item Methodology: explains the experimental setup, interpretation of components, and the process of selecting features and components.
-    \item Results and conclusions: shows the results of the evaluation of the dimensionality reduction techniques based on their performance in a classifying task, and explains the components of the discovered subspaces by the best-performing techniques.
+    \item Results: shows the results of the evaluation of the dimensionality reduction techniques based on their performance in a classifying task, and explains the components of the discovered subspaces by the best-performing techniques.
+    \item Conclusion.
 \end{enumerate}

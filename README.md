@@ -1,4 +1,4 @@
-# Study-of-Dimensionality-Reduction-Techniques-and-Interpretation-of-their-Coefficients
+# Study of Dimensionality Reduction Techniques and Interpretation of their Coefficients, and Influence on Learned Models
 
 Code used for my Masters Thesis "Study of Dimensionality Reduction Techniques and Interpretation of their Coefficients, and Influence on Learned Models", which can be accessed [here](https://oa.upm.es/75893/). It obtained the maximum grade (10/10).
 

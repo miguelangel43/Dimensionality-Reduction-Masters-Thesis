@@ -2,6 +2,8 @@
 
 Code used for my Masters Thesis "Study of Dimensionality Reduction Techniques and Interpretation of their Coefficients, and Influence on Learned Models", which can be accessed [here](https://oa.upm.es/75893/). It obtained the maximum grade (10/10).
 
+Running the code in `main.ipynb`, the user can reproduce the results shown in the thesis.
+
 ## What was done
 
 First, the dimensionality of the data was reduced using state-of-the-art dimensionality reduction techniques such as SLMVP. These reduction techniques were combined with different machine learning classifiers to fine-tune their parameters. The objective was to identify the optimal configuration that achieves the highest accuracy with the given data. The accuracy obtained with only the first k components is measured for different values of k.

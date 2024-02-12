@@ -166,8 +166,10 @@ class Dim:
         result_dim.to_excel(config['PROJECT_PATH'] + 'dim/' +
                             datetime.now().strftime('%m-%d-%H:%M') + '.xlsx')
         # Save as pickle
-        self.pickle_dim(output_path=datetime.now().strftime(
-            '%m-%d-%H:%M'))
+        out_p = datetime.now().strftime(
+            '%m-%d-%H:%M')
+        self.pickle_dim(output_path=out_p)
+        print('Pickled at', out_p)
 
     def slmvp_model(self, n, type_kernel, gammas=None, poly_order=None, multilabel=None):
         # Get the principal components
@@ -300,28 +302,28 @@ class Dim:
                                                   mae
                                                   ]
 
-        if models is None or 'SVM' in models:
-            svm_pipe = Pipeline([('mms', MinMaxScaler()),
-                                 ('svm', SVC())])
-            params = [{'svm__C': [0.1, 1, 10],
-                       'svm__kernel': ['linear', 'rbf', 'poly']}]
-            gs_svm = GridSearchCV(svm_pipe,
-                                  param_grid=params,
-                                  scoring='accuracy',
-                                  cv=5)
+        # if models is None or 'SVM' in models:
+        #     svm_pipe = Pipeline([('mms', MinMaxScaler()),
+        #                          ('svm', SVC())])
+        #     params = [{'svm__C': [0.1, 1, 10],
+        #                'svm__kernel': ['linear', 'rbf', 'poly']}]
+        #     gs_svm = GridSearchCV(svm_pipe,
+        #                           param_grid=params,
+        #                           scoring='accuracy',
+        #                           cv=5)
 
-            for key_dim in tqdm(self.new_dim.keys(), desc='SVM'):
-                gs_svm.fit(self.new_dim[key_dim][0].T, self.y_train)
-                # Make predictions on the test set
-                y_pred = gs_svm.predict(self.new_dim[key_dim][1].T)
-                # Calculate accuracy
-                accuracy = accuracy_score(self.y_test, y_pred)
-                mae = mean_absolute_error(self.y_test, y_pred)
-                self.scores[('SVM', *key_dim)] = ['SVM',
-                                                  accuracy,
-                                                  gs_svm.best_params_,
-                                                  mae
-                                                  ]
+        #     for key_dim in tqdm(self.new_dim.keys(), desc='SVM'):
+        #         gs_svm.fit(self.new_dim[key_dim][0].T, self.y_train)
+        #         # Make predictions on the test set
+        #         y_pred = gs_svm.predict(self.new_dim[key_dim][1].T)
+        #         # Calculate accuracy
+        #         accuracy = accuracy_score(self.y_test, y_pred)
+        #         mae = mean_absolute_error(self.y_test, y_pred)
+        #         self.scores[('SVM', *key_dim)] = ['SVM',
+        #                                           accuracy,
+        #                                           gs_svm.best_params_,
+        #                                           mae
+        #                                           ]
 
         if models is None or 'Decision Tree' in models:
             dt_pipe = Pipeline([('mms', MinMaxScaler()),
@@ -580,14 +582,16 @@ class Dim:
             var_dims = [np.var(self.new_dim[key][0][i])
                         for i in range(len(self.new_dim[key][0]))]
             por_eigenvals = [x/sum(var_dims) for x in var_dims]
+            # Make all lists be of length 5
+            por_eigenvals.extend([''] * (5 - len(por_eigenvals)))
             # res[key+('Var',)] = var_dims
             res[key+('Var %',)] = por_eigenvals
-            # Calculate regression betas
-            model = LinearRegression().fit(
-                self.new_dim[key][0].T, self.y_train)
-            betas = [abs(x) for x in model.coef_]
-            r_squared = model.score(
-                self.new_dim[key][0].T, self.y_train)
+            # # Calculate regression betas
+            # model = LinearRegression().fit(
+            #     self.new_dim[key][0].T, self.y_train)
+            # betas = [abs(x) for x in model.coef_]
+            # r_squared = model.score(
+            #     self.new_dim[key][0].T, self.y_train)
             # res[key+('Beta',)] = betas
             # res[key+('Beta %',)] = [x/sum(betas) for x in betas]
             # res[key+('R^2',)] = [r_squared for x in range(len(betas))]
@@ -611,6 +615,7 @@ class Dim:
         else:
             df = pd.DataFrame(self.X_train)
         for key in tqdm(self.new_dim.keys()):
+            num_dim = int(key[0][0])
             for i in range(num_dim):
                 df[key+(i,)] = self.new_dim[key][0][i]
 
@@ -642,6 +647,7 @@ class Dim:
         else:
             df = pd.DataFrame(self.X_train)
         for key in tqdm(self.new_dim.keys()):
+
             for i in range(num_dim):
                 df[key+(i,)] = self.new_dim[key][0][i]
 

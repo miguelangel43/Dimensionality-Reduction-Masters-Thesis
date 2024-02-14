@@ -26,9 +26,9 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.metrics import mean_absolute_error
-import yaml
+import os
 
-config = yaml.safe_load(open("config.yml"))
+cwd = os.getcwd() + '/'
 
 
 class Dim:
@@ -161,9 +161,9 @@ class Dim:
             result_dim[key] = self.new_dim[key][0][0]
         result_dim.columns = pd.MultiIndex.from_tuples(
             result_dim.columns.to_list())
-        result_dim.to_csv(config['PROJECT_PATH'] + 'dim/' +
+        result_dim.to_csv(cwd + 'dim/' +
                           datetime.now().strftime('%m-%d-%H:%M') + '.csv')
-        result_dim.to_excel(config['PROJECT_PATH'] + 'dim/' +
+        result_dim.to_excel(cwd + 'dim/' +
                             datetime.now().strftime('%m-%d-%H:%M') + '.xlsx')
         # Save as pickle
         out_p = datetime.now().strftime(
@@ -451,10 +451,10 @@ class Dim:
 
         file_name = datetime.now().strftime('%m-%d-%H:%M')
 
-        df.to_csv(config['PROJECT_PATH'] + 'scores/' +
+        df.to_csv(cwd + 'scores/' +
                   file_name + '.csv')
         df.to_excel(
-            config['PROJECT_PATH'] + 'scores/' + file_name + '.xlsx')
+            cwd + 'scores/' + file_name + '.xlsx')
 
         # df = df.groupby('Dim. Technique', as_index=False).first()
 
@@ -476,7 +476,9 @@ class Dim:
 
         if save_name is not None:
             plt.savefig(
-                config['PROJECT_PATH'] + 'plots/' + save_name + '.png')
+                cwd + 'plots/' + save_name + '.png')
+            print('Image saved at ' +
+                  cwd + 'plots/' + save_name + '.png')
 
     def plot_artificial_3D(self, n_rows, n_cols, figsize=(15, 12), save_name=None):
         fig = plt.figure(figsize=figsize)
@@ -490,7 +492,9 @@ class Dim:
                          idx][1] + ' ' + list(self.new_dim.keys())[idx][2])
         if save_name is not None:
             plt.savefig(
-                config['PROJECT_PATH'] + 'plots/' + save_name + '.png')
+                cwd + 'plots/' + save_name + '.png')
+            print('Image saved at ' +
+                  cwd + 'plots/' + save_name + '.png')
 
     def plot_artificial_multilabel(self, n_rows, n_cols, figsize=(15, 12), save_name=None):
         fig, ax = plt.subplots(
@@ -533,7 +537,9 @@ class Dim:
 
         if save_name is not None:
             plt.savefig(
-                config['PROJECT_PATH'] + 'plots/' + save_name + '.png')
+                cwd + 'plots/' + save_name + '.png')
+            print('Image saved at ' +
+                  cwd + 'plots/' + save_name + '.png')
 
     def plot_artificial_multilabel_3D(self, n_rows, n_cols, figsize=(15, 12), save_name=None):
         fig = plt.figure(figsize=figsize)
@@ -569,7 +575,7 @@ class Dim:
 
         if save_name is not None:
             plt.savefig(
-                config['PROJECT_PATH'] + 'plots/' + save_name + '.png')
+                cwd + 'plots/' + save_name + '.png')
 
     # -------------------------- Comparison Functions ------------------------------
 
@@ -599,9 +605,9 @@ class Dim:
         res.columns = pd.MultiIndex.from_tuples(
             res.columns.to_list())
 
-        res.to_csv(config['PROJECT_PATH'] + 'evalues/' +
+        res.to_csv(cwd + 'evalues/' +
                    datetime.now().strftime('%m-%d-%H:%M') + '.csv')
-        res.to_excel(config['PROJECT_PATH'] + 'evalues/' +
+        res.to_excel(cwd + 'evalues/' +
                      datetime.now().strftime('%m-%d-%H:%M') + '.xlsx')
 
         return res
@@ -631,9 +637,9 @@ class Dim:
             df_corr = df_corr.abs()
 
         # Save result in csv
-        df_corr.to_csv(config['PROJECT_PATH'] + 'corr/corr_' +
+        df_corr.to_csv(cwd + 'corr/corr_' +
                        datetime.now().strftime('%m-%d-%H:%M')+'_'+str(num_dim)+'.csv')
-        df_corr.to_excel(config['PROJECT_PATH'] + 'corr/corr_' +
+        df_corr.to_excel(cwd + 'corr/corr_' +
                          datetime.now().strftime('%m-%d-%H:%M')+'_'+str(num_dim)+'.xlsx')
 
         return df_corr
@@ -672,9 +678,9 @@ class Dim:
         # Multiply 'Var %' to
 
         # Save result in csv
-        df_corr.to_csv(config['PROJECT_PATH'] + 'corr/corr_' +
+        df_corr.to_csv(cwd + 'corr/corr_' +
                        datetime.now().strftime('%m-%d-%H:%M')+'_'+str(num_dim)+'.csv')
-        df_corr.to_excel(config['PROJECT_PATH'] + 'corr/corr_' +
+        df_corr.to_excel(cwd + 'corr/corr_' +
                          datetime.now().strftime('%m-%d-%H:%M')+'_'+str(num_dim)+'.xlsx')
 
         return df_corr

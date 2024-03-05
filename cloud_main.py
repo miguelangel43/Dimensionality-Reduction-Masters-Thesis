@@ -25,6 +25,8 @@ dim.apply_dim(num_dim=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], tflag=[3, 6, 7, 8])
 # Run classifiers on reduced space
 dim.apply_clf(models=['SVM', 'XGBoost', 'LDA'])
 
-# Choose the dim. red. techniques that performed the best
-
 # Get the  correlations
+dim.get_corr_table(num_dim=None, abs=False)
+
+# Get Weights
+dim.get_weights()

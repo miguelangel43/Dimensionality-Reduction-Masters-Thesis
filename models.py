@@ -302,28 +302,28 @@ class Dim:
                                                   mae
                                                   ]
 
-        # if models is None or 'SVM' in models:
-        #     svm_pipe = Pipeline([('mms', MinMaxScaler()),
-        #                          ('svm', SVC())])
-        #     params = [{'svm__C': [0.1, 1, 10],
-        #                'svm__kernel': ['linear', 'rbf', 'poly']}]
-        #     gs_svm = GridSearchCV(svm_pipe,
-        #                           param_grid=params,
-        #                           scoring='accuracy',
-        #                           cv=5)
+        if models is None or 'SVM' in models:
+            svm_pipe = Pipeline([('mms', MinMaxScaler()),
+                                 ('svm', SVC())])
+            params = [{'svm__C': [0.1, 1, 10],
+                       'svm__kernel': ['linear', 'rbf', 'poly']}]
+            gs_svm = GridSearchCV(svm_pipe,
+                                  param_grid=params,
+                                  scoring='accuracy',
+                                  cv=5)
 
-        #     for key_dim in tqdm(self.new_dim.keys(), desc='SVM'):
-        #         gs_svm.fit(self.new_dim[key_dim][0].T, self.y_train)
-        #         # Make predictions on the test set
-        #         y_pred = gs_svm.predict(self.new_dim[key_dim][1].T)
-        #         # Calculate accuracy
-        #         accuracy = accuracy_score(self.y_test, y_pred)
-        #         mae = mean_absolute_error(self.y_test, y_pred)
-        #         self.scores[('SVM', *key_dim)] = ['SVM',
-        #                                           accuracy,
-        #                                           gs_svm.best_params_,
-        #                                           mae
-        #                                           ]
+            for key_dim in tqdm(self.new_dim.keys(), desc='SVM'):
+                gs_svm.fit(self.new_dim[key_dim][0].T, self.y_train)
+                # Make predictions on the test set
+                y_pred = gs_svm.predict(self.new_dim[key_dim][1].T)
+                # Calculate accuracy
+                accuracy = accuracy_score(self.y_test, y_pred)
+                mae = mean_absolute_error(self.y_test, y_pred)
+                self.scores[('SVM', *key_dim)] = ['SVM',
+                                                  accuracy,
+                                                  gs_svm.best_params_,
+                                                  mae
+                                                  ]
 
         if models is None or 'Decision Tree' in models:
             dt_pipe = Pipeline([('mms', MinMaxScaler()),

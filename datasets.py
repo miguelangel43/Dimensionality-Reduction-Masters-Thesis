@@ -388,3 +388,47 @@ class fifa:
         self.y = label_encoder.fit_transform(df[['position']])
 
         self.col_names = [*X_cols, 'position']
+
+
+class Income:
+    """https://archive.ics.uci.edu/dataset/20/census+income
+
+    488415 x 15
+    The dataset contains categorical columns that have to be encoded. It is unbalanced,
+    24,720 instances where Y = "<=50K" and 7,841 where Y = ">50K".
+    """
+
+    def __init__(self):
+        self.col_names = [
+            'age',
+            'workclass',
+            'fnlwgt',
+            'education',
+            'education-num',
+            'marital-status',
+            'occupation',
+            'relationship',
+            'race',
+            'sex',
+            'capital-gain',
+            'capital-loss',
+            'hours-per-week',
+            'native-country',
+            'income'
+        ]
+        self.data = pd.read_csv(
+            config['DATAFOLDER_PATH'] + 'census_income/adult.data', names=self.col_names)
+        self.load_data()
+        data_np = self.data.to_numpy()
+        self.X = data_np[:, :-1]
+        self.y = data_np[:, -1]
+
+    def load_data(self):
+        # Preprocessing
+        # Encoding Categorical Variables
+        categorical_cols = ['workclass', 'education', 'marital-status',
+                            'occupation', 'relationship', 'race', 'sex', 'native-country', 'income']
+
+        for col in categorical_cols:
+            label_encoder = LabelEncoder()
+            self.data[col] = label_encoder.fit_transform(self.data[col])

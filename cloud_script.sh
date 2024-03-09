@@ -2,7 +2,7 @@
 
 # Install Python 3.9.1
 sudo apt update
-sudo apt install python3 unzip git
+sudo apt install python3 unzip git python3.11-venv
 
 # Clone the repo
 git clone https://github.com/miguelangel43/Dimensionality-Reduction-Masters-Thesis.git
